@@ -29,7 +29,6 @@ import 'package:flutter_application_base/widgets/drawer_menu.dart';
 //   }
 // }
 
-
 final List<Map<String, String>> cardData = [
   {
     'image': 'assets/images/paseador.png',
