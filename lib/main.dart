@@ -28,8 +28,8 @@ class MyApp extends StatelessWidget {
       theme: themeProvider.temaActual,
       initialRoute: 'home', // Ruta inicial
       routes: {
-        'home': (context) => HomeScreen(), // Pantalla principal
-        'profile': (context) => ProfileScreen(), // Pantalla de perfil
+        'home': (context) => const HomeScreen(), // Pantalla principal
+        'profile': (context) => const ProfileScreen(), // Pantalla de perfil
       },
     );
   }

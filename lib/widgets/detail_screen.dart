@@ -36,10 +36,10 @@ class BodyDetail extends StatefulWidget {
   const BodyDetail({super.key, required this.data});
 
   @override
-  _BodyDetailState createState() => _BodyDetailState();
+  BodyDetailState createState() => BodyDetailState();
 }
 
-class _BodyDetailState extends State<BodyDetail> {
+class BodyDetailState extends State<BodyDetail> {
   late bool isFavorite;
 
   @override
