@@ -22,8 +22,8 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             HeaderProfile(size: size),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
+            const Padding(
+              padding: EdgeInsets.all(15.0),
               child: BodyProfile(),
             ),
           ],
