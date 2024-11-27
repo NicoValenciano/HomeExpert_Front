@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DrawerMenu extends StatelessWidget {
-  final List<Map<String, dynamic>> _menuItems = <Map<String, dynamic>>
-  [
-    {'title': 'Inicio', 'icon': Icons.home},
-    {'title': 'Registrarme', 'icon': Icons.person_add},
+  final List<Map<String, dynamic>> _menuItems = <Map<String, dynamic>>[
+    {'route': 'home', 'title': 'Inicio', 'icon': Icons.home},
+    {'route': 'profile', 'title': 'Registrarme', 'icon': Icons.person_add},
     {'title': 'Buscar', 'icon': Icons.search},
     {'title': 'Notificaciones', 'icon': Icons.notifications},
     {'title': 'Favoritos', 'icon': Icons.favorite},
@@ -37,6 +36,11 @@ class DrawerMenu extends StatelessWidget {
                         title: Text(item['title']!,
                             style: const TextStyle(fontFamily: 'FuzzyBubbles')),
                         leading: Icon(item['icon']),
+                        onTap: () {
+                          Navigator.pop(context);
+                          //Navigator.pushReplacementNamed(context, item['route']!);
+                          Navigator.pushNamed(context, item['route']!);
+                        },
                       ))
                   .toList())
         ],
@@ -53,13 +57,13 @@ class _DrawerHeaderAlternative extends StatelessWidget {
     return DrawerHeader(
       padding: EdgeInsets.zero,
       child: Container(
-          alignment: Alignment.center,
-          child: const Text(
-            'HomeExpert',
-            style: TextStyle(
-                fontSize: 13, color: Colors.black54, fontFamily: 'RobotoMono'),
-            textAlign: TextAlign.center,
-          ),
+        alignment: Alignment.center,
+        child: const Text(
+          'HomeExpert',
+          style: TextStyle(
+              fontSize: 13, color: Colors.black54, fontFamily: 'RobotoMono'),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
