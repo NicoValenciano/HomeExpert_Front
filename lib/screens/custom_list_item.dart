@@ -180,7 +180,7 @@ class BodyProfileCustomItem extends StatelessWidget {
                   ],
                 ),
                 Icon(
-                  args['sexo'] == 'M' ? Icons.male : Icons.female,
+                  args['sexo'] == 'male' ? Icons.male : Icons.female,
                   size: 28,
                 ),
               ],
