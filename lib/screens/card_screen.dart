@@ -28,7 +28,7 @@ class CardScreen extends StatelessWidget {
             Row(
               children: [
                 Image.asset(imagePath,
-                    width: 150, height: 150, fit: BoxFit.cover),
+                    width: 120, height: 120, fit: BoxFit.cover),
                 const SizedBox(width: 20),
                 Expanded(
                   child: Text(

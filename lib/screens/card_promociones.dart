@@ -40,7 +40,7 @@ class CardPromociones extends StatelessWidget {
           child: Text(
             'Promociones',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               color: Colors.grey,
             ),
           ),
@@ -51,7 +51,7 @@ class CardPromociones extends StatelessWidget {
           height: 150.0, // Altura fija para las tarjetas
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal, // Dirección del scroll
+            scrollDirection: Axis.horizontal,
             itemCount: promociones.length,
             itemBuilder: (context, index) {
               final promo = promociones[index];

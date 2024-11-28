@@ -49,7 +49,12 @@ flutter:
   assets:
     - assets/loading.gif
     - assets/images/
-    - assets/avatars/    
+    - assets/avatars/  
+    - assets/fonts/
+  fonts:
+    - family: DancingScript
+      fonts:
+        - asset: assets/fonts/CedarvilleCursive-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
