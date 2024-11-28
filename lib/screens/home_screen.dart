@@ -1,5 +1,3 @@
-//import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_base/screens/screens.dart';
 import 'package:flutter_application_base/widgets/promo_card_swiper.dart';
@@ -36,11 +34,12 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home Expert',
             style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 25,
-                fontFamily: 'assets/fonts/OoohBaby-regular.ttf')),
-        backgroundColor: Colors.grey[200],
+              color: Colors.grey,
+              fontWeight: FontWeight.bold,
+              fontSize: 30,
+              fontFamily: 'DancingScript',
+            )),
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             onPressed: () {},
@@ -57,6 +56,19 @@ class HomeScreen extends StatelessWidget {
             const Categorias(),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Carrito',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.card_giftcard),
+            label: 'Promociones',
+          ),
+        ],
+        backgroundColor: Colors.white,
       ),
     );
   }
@@ -83,9 +95,8 @@ class Categorias extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class Slogan extends StatelessWidget {
-  Size size;
+  final Size size;
 
   Slogan({
     super.key,
@@ -100,12 +111,14 @@ class Slogan extends StatelessWidget {
       margin: const EdgeInsets.all(10.0),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
-        border: Border.all(color: Colors.grey, width: 1.0),
-        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white70,
+        border: Border.all(
+          color: Colors.transparent,
+        ),
+        borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
-            color: const Color.fromARGB(255, 197, 197, 197).withOpacity(0.5),
+            color: Colors.black.withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
             offset: const Offset(2, 4),
@@ -116,9 +129,10 @@ class Slogan extends StatelessWidget {
         'Excelencia en cada rincón, expertos en tu hogar',
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Color.fromARGB(255, 134, 133, 133),
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+          fontSize: 20,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
         ),
       ),
     );
