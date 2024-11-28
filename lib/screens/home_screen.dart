@@ -2,31 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_base/screens/screens.dart';
-
-// class HomeScreen extends StatelessWidget {
-//   const HomeScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Home Screen'),
-//         centerTitle: true,
-//         leadingWidth: 40,
-//         toolbarHeight: 80,
-//       ),
-//       drawer: DrawerMenu(),
-//       body: const Center(child: Text('Hola mundo')),
-//       floatingActionButton: FloatingActionButton(
-//         child: const Icon(Icons.plus_one),
-//         onPressed: () {
-//           log('click button');
-//         },
-//       ),
-//       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-//     );
-//   }
-// }
+import 'package:flutter_application_base/widgets/promo_card_swiper.dart';
 
 final List<Map<String, String>> cardData = [
   {
@@ -120,7 +96,7 @@ class Slogan extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: size.height * 0.2,
+      height: size.height * 0.12,
       margin: const EdgeInsets.all(10.0),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -131,7 +107,7 @@ class Slogan extends StatelessWidget {
           BoxShadow(
             color: const Color.fromARGB(255, 197, 197, 197).withOpacity(0.5),
             spreadRadius: 2,
-            blurRadius: 5,
+            blurRadius: 8,
             offset: const Offset(2, 4),
           ),
         ],

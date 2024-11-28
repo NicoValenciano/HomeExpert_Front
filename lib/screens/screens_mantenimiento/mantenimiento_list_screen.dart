@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/widgets/detail_screen.dart';
+import 'package:flutter_application_base/screens/detail_screen.dart';
 
 class CustomListScreen extends StatelessWidget {
   final List _elements = [
