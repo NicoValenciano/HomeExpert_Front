@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DetailScreen extends StatelessWidget {
-  final List<dynamic> data; // Datos del elemento seleccionado
+  final Map<String, dynamic> data; // Datos del elemento seleccionado
 
   const DetailScreen({super.key, required this.data});
 
@@ -12,13 +12,13 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(data[1]),
+        title: Text(data['nombreCompleto']),
         elevation: 10,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            HeaderDetail(size: size, avatar: data[0]),
+            HeaderDetail(size: size, avatar: data['foto']),
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: BodyDetail(data: data),
@@ -31,7 +31,7 @@ class DetailScreen extends StatelessWidget {
 }
 
 class BodyDetail extends StatefulWidget {
-  final List<dynamic> data;
+  final Map<String, dynamic> data;
 
   const BodyDetail({super.key, required this.data});
 
@@ -45,55 +45,87 @@ class BodyDetailState extends State<BodyDetail> {
   @override
   void initState() {
     super.initState();
-    isFavorite = widget.data[4];
+    isFavorite = widget.data['isFavorite'] ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildRow(label: 'Nombre:', value: widget.data[1]),
-        _buildRow(label: 'Ocupación:', value: widget.data[2]),
-        _buildRow(label: 'Edad:', value: widget.data[3].toString()),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              const Icon(Icons.star, size: 30),
+              const Text(
+                'Nombre:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.data['nombreCompleto'],
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Text(
+                'Ocupación:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.data['oficio'],
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Text(
+                'Precio:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '\$${widget.data['precio']}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Text(
+                'Calificación:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.data['calificacion'].toString(),
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.favorite, size: 30),
               const SizedBox(width: 10),
               const Text('Es favorito:', style: TextStyle(fontSize: 18)),
-              Checkbox(
+              Switch(
                 value: isFavorite,
-                onChanged: (bool? newValue) {
+                onChanged: (bool newValue) {
                   setState(() {
-                    isFavorite = newValue ?? false;
+                    isFavorite = newValue;
                   });
                 },
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRow({required String label, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 18),
-            ),
           ),
         ],
       ),
@@ -120,7 +152,7 @@ class HeaderDetail extends StatelessWidget {
       child: Center(
         child: CircleAvatar(
           radius: 100,
-          backgroundImage: AssetImage('assets/avatars/$avatar.png'),
+          backgroundImage: AssetImage('assets/m_avatars/$avatar.png'),
         ),
       ),
     );

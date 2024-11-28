@@ -19,7 +19,8 @@ class CardScreen extends StatelessWidget {
         if (title == "Mantenimiento") {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CustomListScreen()),
+            MaterialPageRoute(
+                builder: (context) => const MantenimientoListScreen()),
           );
         } else if (title == "Cuidadores") {
           Navigator.push(
