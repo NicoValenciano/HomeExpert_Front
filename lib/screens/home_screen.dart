@@ -58,7 +58,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Carrito',
@@ -98,7 +98,7 @@ class Categorias extends StatelessWidget {
 class Slogan extends StatelessWidget {
   final Size size;
 
-  Slogan({
+  const Slogan({
     super.key,
     required this.size,
   });
