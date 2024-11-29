@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import '../../mocks/lista_bruno.dart' show elements;
+import '../../mocks/cuidadores_mock.dart' show elements;
 
 class CuidadoresListScreen extends StatefulWidget {
   const CuidadoresListScreen({super.key});
@@ -74,12 +74,14 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
               context,
               'custom_list_item',
               arguments: <String, dynamic>{
-                'precio': element['precio'],
-                'nombreCompleto': element['nombreCompleto'],
-                'sexo': element['sexo'],
-                'foto': element['foto'], 
+                'avatar': element['foto'],
+                'name': element['nombreCompleto'],
+                'fecha_nacimiento': element['fechaNacimiento'].split('T')[0],
                 'disponibilidad': element['disponibilidad'],
+                'precio': element['precio'],
                 'calificacion': element['calificacion'],
+                'id': element['id'],
+                'sexo': element['sexo']
               },
             );
             FocusManager.instance.primaryFocus?.unfocus();
@@ -107,7 +109,7 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(25),
                   child: Image.asset(
-                    'assets/avatars/${element['foto']}.png',
+                    'assets/m_avatars/${element['foto']}.png',
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,

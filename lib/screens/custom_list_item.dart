@@ -175,7 +175,7 @@ class BodyProfileCustomItem extends StatelessWidget {
                   children: [
                     const Text('Sexo',
                         style: TextStyle(fontSize: 14, color: Colors.grey)),
-                    Text(args['sexo'] ?? '',
+                    Text(_traducirSexo(args['sexo']),
                         style: const TextStyle(fontSize: 18)),
                   ],
                 ),
@@ -189,6 +189,16 @@ class BodyProfileCustomItem extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _traducirSexo(String? sexo) {
+    final Map<String, String> traduccionSexo = {
+      'male': 'Masculino',
+      'female': 'Femenino',
+    };
+    
+    // Devolvemos la traducción o 'No especificado' si no coincide
+    return traduccionSexo[sexo?.toLowerCase()] ?? 'No especificado';
   }
 
   InputDecoration decorationInput(
