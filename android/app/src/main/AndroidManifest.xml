@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
+<<<<<<< HEAD
         android:label="mi_nuevo_proyecto"
+=======
+        android:label="flutter_application_base"
+        android:enableOnBackInvokedCallback="true"
+>>>>>>> 4cbcff7068bf893745b9ebc2face1e70aa9f162d
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

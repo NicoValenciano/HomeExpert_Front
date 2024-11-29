@@ -1,16 +1,18 @@
 import 'dart:developer';
-import 'package:flutter_application_base/mocks/people_mock.dart' show elements;
 import 'package:flutter/material.dart';
+import 'package:flutter_application_base/screens/screens.dart';
+import '../../mocks/mantenimiento_mock.dart' show elements;
 
-class CustomListScreen extends StatefulWidget {
-  const CustomListScreen({super.key});
+class MantenimientoListScreen extends StatefulWidget {
+  const MantenimientoListScreen({super.key});
 
   @override
-  State<CustomListScreen> createState() => _CustomListScreenState();
+  State<MantenimientoListScreen> createState() =>
+      _MantenimientoListScreenState();
 }
 
-class _CustomListScreenState extends State<CustomListScreen> {
-  List _auxiliarElements = [];
+class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
+  List<Map<String, dynamic>> _auxiliarElements = [];
   String _searchQuery = '';
   bool _searchActive = false;
 
@@ -25,7 +27,6 @@ class _CustomListScreenState extends State<CustomListScreen> {
 
   @override
   void dispose() {
-    // Limpiar el controlador al destruir el widget
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -35,10 +36,12 @@ class _CustomListScreenState extends State<CustomListScreen> {
     setState(() {
       _searchQuery = query ?? '';
       if (_searchQuery.isEmpty) {
-        _auxiliarElements = elements; // Restablecer al estado original
+        _auxiliarElements = elements;
       } else {
         _auxiliarElements = elements.where((element) {
-          return element[1].toLowerCase().contains(_searchQuery.toLowerCase());
+          return element['nombreCompleto']
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
         }).toList();
       }
     });
@@ -49,10 +52,13 @@ class _CustomListScreenState extends State<CustomListScreen> {
     return SafeArea(
       top: true,
       child: Scaffold(
-          body: Column(children: [
-        searchArea(),
-        listItemsArea(),
-      ])),
+        body: Column(
+          children: [
+            searchArea(),
+            listItemsArea(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -62,61 +68,82 @@ class _CustomListScreenState extends State<CustomListScreen> {
         physics: const BouncingScrollPhysics(),
         itemCount: _auxiliarElements.length,
         itemBuilder: (BuildContext context, int index) {
+          final element = _auxiliarElements[index];
+
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, 'custom_list_item',
-                  arguments: <String, dynamic>{
-                    'avatar': elements[index][0],
-                    'name': elements[index][1],
-                    'cargo': elements[index][2],
-                    'stars': elements[index][3],
-                    'favorite': elements[index][4],
-                  });
-              FocusManager.instance.primaryFocus?.unfocus();
+              // Navegar a la pantalla de detalle pasando los datos
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailScreen(
+                    data: {
+                      'precio': element['precio'],
+                      'nombreCompleto': element['nombreCompleto'],
+                      'sexo': element['sexo'],
+                      'foto': element['foto'],
+                      'disponibilidad': element['disponibilidad'],
+                      'calificacion': element['calificacion'],
+                      'oficio': element['oficio'],
+                    },
+                  ),
+                ),
+              );
             },
             onLongPress: () {
               log('onLongPress $index');
             },
             child: Container(
-              height: 100,
+              height: 110,
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Color.fromARGB(31, 206, 219, 246),
-                        blurRadius: 0,
-                        spreadRadius: 3,
-                        offset: Offset(0, 6))
-                  ]),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color.fromARGB(31, 22, 78, 189),
+                      blurRadius: 15,
+                      spreadRadius: 5,
+                      offset: Offset(0, 6))
+                ],
+              ),
               child: Row(
                 children: [
-                  Image.asset(
-                      'assets/avatars/${_auxiliarElements[index][0]}.png',
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: Image.asset(
+                      'assets/m_avatars/${element['foto']}.png',
                       width: 50,
-                      height: 50),
-                  const SizedBox(
-                    width: 10,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _auxiliarElements[index][1],
+                          element['nombreCompleto'],
                           style: const TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
-                        Text(_auxiliarElements[index][2]),
+                        Text('Precio: ${element['precio']}'),
+                        Text('Oficio: ${element['oficio']}'),
                       ],
                     ),
                   ),
-                  Icon(_auxiliarElements[index][4]
-                      ? Icons.star
-                      : Icons.star_border_outlined),
-                  Text(_auxiliarElements[index][3].toString())
+                  Icon(
+                    element['disponibilidad']
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                    color:
+                        element['disponibilidad'] ? Colors.green : Colors.red,
+                  ),
+                  const SizedBox(width: 10),
+                  Text('${element['calificacion']}'),
                 ],
               ),
             ),
