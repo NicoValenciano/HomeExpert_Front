@@ -117,11 +117,13 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
                     'avatar': _auxiliarElements[index][0],
                     'name': _auxiliarElements[index][1],
                     'cargo': _auxiliarElements[index][2],
-                    'stars': _auxiliarElements[index][3],
-                    'favorite': _auxiliarElements[index][4],
+                    'fecha_nacimiento': _auxiliarElements[index][3],
+                    'disponibilidad': _auxiliarElements[index][4],
                     'precio': _auxiliarElements[index][5],
                     'ciudad': _auxiliarElements[index][6],
-                    'calificacion': _auxiliarElements[index][7]
+                    'calificacion': _auxiliarElements[index][7],
+                    'id': _auxiliarElements[index][8],
+                    'sexo': _auxiliarElements[index][9]
                   });
               FocusManager.instance.primaryFocus?.unfocus();
             },
