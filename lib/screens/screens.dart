@@ -7,3 +7,4 @@ export 'package:flutter_application_base/widgets/drawer_menu.dart';
 export 'package:flutter_application_base/screens/screens_cuidadores/cuidadores_list_screen.dart';
 export 'package:flutter_application_base/screens/screens_mantenimiento/mantenimiento_list_screen.dart';
 export 'package:flutter_application_base/screens/screens_jardineria/jardineria_list_screen.dart';
+export 'package:flutter_application_base/screens/screens_limpieza/limpieza_list_screen.dart';

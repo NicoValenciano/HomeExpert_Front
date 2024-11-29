@@ -1,5 +1,6 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_base/screens/detail_screen.dart';
+import 'dart:developer';
 import '../../mocks/limpieza_mock.dart' show listadoLimpieza;
 
 class LimpiezaListScreen extends StatefulWidget {
@@ -17,6 +18,11 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  // Filtro por rango de precios
+  RangeValues _currentRangeValues = const RangeValues(0, 5000);
+  final double _minPrice = 0;
+  final double _maxPrice = 5000;
+
   @override
   void initState() {
     super.initState();
@@ -33,15 +39,32 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   void _updateSearch(String? query) {
     setState(() {
       _searchQuery = query ?? '';
-      if (_searchQuery.isEmpty) {
-        _auxiliarElements = listadoLimpieza;
-      } else {
-        _auxiliarElements = listadoLimpieza.where((element) {
-          return element['id']
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase());
-        }).toList();
-      }
+      _applyFilters();
+    });
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _auxiliarElements = listadoLimpieza.where((element) {
+        // Filtrar por nombre (si se especifica)
+        bool matchesSearchQuery = element['nombreCompleto']
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase());
+
+        // Filtrar por precio
+        double price = double.parse(element['precio'].toString());
+        bool matchesPriceRange = price >= _currentRangeValues.start &&
+            price <= _currentRangeValues.end;
+
+        return matchesSearchQuery && matchesPriceRange;
+      }).toList();
+    });
+  }
+
+  void _filterByPriceRange(RangeValues values) {
+    setState(() {
+      _currentRangeValues = values;
+      _applyFilters();
     });
   }
 
@@ -52,23 +75,156 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
       child: Scaffold(
         body: Column(
           children: [
-            _searchArea(),
-            _listItemsArea(),
+            searchArea(),
+            priceRangeArea(),
+            listItemsArea(),
           ],
         ),
       ),
     );
   }
 
-  AnimatedSwitcher _searchArea() {
+  // Área del filtro de precio
+  Padding priceRangeArea() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('\$${_currentRangeValues.start.round()}'),
+              Text('\$${_currentRangeValues.end.round()}'),
+            ],
+          ),
+          RangeSlider(
+            values: _currentRangeValues,
+            min: _minPrice,
+            max: _maxPrice,
+            divisions: 100,
+            labels: RangeLabels(
+              _currentRangeValues.start.round().toString(),
+              _currentRangeValues.end.round().toString(),
+            ),
+            onChanged: (RangeValues values) {
+              _filterByPriceRange(values);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Expanded listItemsArea() {
+    return Expanded(
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        itemCount: _auxiliarElements.length,
+        itemBuilder: (BuildContext context, int index) {
+          final element = _auxiliarElements[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailScreen(data: element),
+                ),
+              );
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            onLongPress: () {
+              log('onLongPress $index');
+            },
+            child: Container(
+              height: 120,
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                    offset: Offset(0, 6),
+                  )
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      'assets/avatars/${element['foto']}.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          element['nombreCompleto'],
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                        Text(
+                          '\$${element['precio']}',
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    element['disponibilidad']
+                        ? Icons.event_available_outlined
+                        : Icons.highlight_off,
+                    color: element['disponibilidad']
+                        ? const Color.fromARGB(255, 1, 158, 30)
+                        : const Color.fromARGB(255, 248, 55, 42),
+                  ),
+                  const SizedBox(width: 20),
+                  Row(
+                    children: [
+                      Text(
+                        element['calificacion'].toString(),
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                      const Icon(
+                        Icons.grade,
+                        color: Color.fromARGB(255, 254, 217, 32),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Área de búsqueda
+  AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(
-      switchInCurve: Curves.easeIn,
-      switchOutCurve: Curves.easeOut,
+      switchInCurve: Curves.bounceIn,
+      switchOutCurve: Curves.bounceOut,
       duration: const Duration(milliseconds: 300),
       child: (_searchActive)
           ? Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   Expanded(
@@ -81,12 +237,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                       onFieldSubmitted: (value) {
                         _updateSearch(value);
                       },
-                      decoration: InputDecoration(
-                        hintText: 'Buscar persona de limpieza...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
+                      decoration: const InputDecoration(hintText: 'Buscar...'),
                     ),
                   ),
                   IconButton(
@@ -109,133 +260,32 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
               ),
             )
           : Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+              padding: const EdgeInsets.all(2),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new)),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_left_outlined),
+                  ),
                   const Text(
                     'Limpieza',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _searchActive = !_searchActive;
-                        });
-                        _focusNode.requestFocus();
-                      },
-                      icon: const Icon(Icons.search)),
-                ],
-              ),
-            ),
-    );
-  }
-
-  Expanded _listItemsArea() {
-    return Expanded(
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: _auxiliarElements.length,
-        itemBuilder: (BuildContext context, int index) {
-          final element = _auxiliarElements[index];
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                'limpieza_item',
-                arguments: <String, dynamic>{
-                  'nombre': element['nombre'],
-                  'apellido': element['apellido'],
-                  'foto': element['foto'],
-                  'edad': element['edad'],
-                  'sexo': element['sexo'],
-                  'disponible': element['disponible'],
-                  'precio': element['precio'],
-                  'calificacion': element['calificacion'],
-                  'id': element['id'],
-                },
-              );
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            onLongPress: () {
-              log('onLongPress $index');
-            },
-            child: Container(
-              height: 120,
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                      offset: Offset(0, 6))
-                ],
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      'assets/avatars/${element['foto']}.png',
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          element['id'],
-                          style: const TextStyle(
-                              fontSize: 16, color: Colors.black87),
-                        ),
-                        Text(
-                          element['nombre'],
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Text('Precio: \$${element['precio']}'),
-                        Text(
-                          element['apellido'],
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Text('Apellido: \$${element['apellido']}'),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    element['disponibilidad']
-                        ? Icons.check_circle_outline
-                        : Icons.cancel_outlined,
-                    color: element['disponibilidad'] ? Colors.teal : Colors.red,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${element['calificacion']}',
-                    style: const TextStyle(fontSize: 16),
+                    onPressed: () {
+                      setState(() {
+                        _searchActive = !_searchActive;
+                      });
+                      _focusNode.requestFocus();
+                    },
+                    icon: const Icon(Icons.search),
                   ),
                 ],
               ),
             ),
-          );
-        },
-      ),
     );
   }
 }
