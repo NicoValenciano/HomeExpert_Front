@@ -48,20 +48,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/loading.gif
-    - assets/images/
-<<<<<<< HEAD
-    - assets/avatars/
-    - assets/m_avatars/    
-=======
+  assets: 
     - assets/avatars/  
     - assets/fonts/
-  fonts:
-    - family: DancingScript
-      fonts:
-        - asset: assets/fonts/CedarvilleCursive-Regular.ttf
->>>>>>> paseadores
+    - assets/images/ 
+    - assets/m_avatars
+    - assets/loading.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
