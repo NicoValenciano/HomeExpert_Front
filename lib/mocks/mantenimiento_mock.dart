@@ -550,3 +550,12 @@ const List<Map<String, dynamic>> elements = [
     "id": "50"
   }
 ];
+
+//Funcion para obtener los oficios únicos de las personas
+List<String> obtenerOficiosUnicos(List<Map<String, dynamic>> personas) {
+  // Extraer todos los oficios y eliminarlos duplicados
+  return personas
+      .map((persona) => persona['oficio'].toString())
+      .toSet()
+      .toList();
+}

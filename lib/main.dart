@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
       routes: {
         'home': (context) => const HomeScreen(), // Pantalla principal
         'profile': (context) => const ProfileScreen(), // Pantalla de perfil
+        'custom_list_item': (context) => const CustomListItem(),
       },
     );
   }

@@ -1,7 +1,7 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/screens/screens.dart';
+import 'package:flutter_application_base/screens/detail_screen.dart';
 import '../../mocks/mantenimiento_mock.dart' show elements;
+import 'drawer_menu_mantenimiento.dart';
 
 class MantenimientoListScreen extends StatefulWidget {
   const MantenimientoListScreen({super.key});
@@ -35,15 +35,28 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
   void _updateSearch(String? query) {
     setState(() {
       _searchQuery = query ?? '';
-      if (_searchQuery.isEmpty) {
-        _auxiliarElements = elements;
-      } else {
-        _auxiliarElements = elements.where((element) {
-          return element['nombreCompleto']
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase());
-        }).toList();
-      }
+      _applyFilters();
+    });
+  }
+
+  void _filterByOficio(String oficio) {
+    setState(() {
+      _auxiliarElements = elements.where((element) {
+        return element['oficio'] == oficio &&
+            (element['nombreCompleto']
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()));
+      }).toList();
+    });
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _auxiliarElements = elements.where((element) {
+        return element['nombreCompleto']
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase());
+      }).toList();
     });
   }
 
@@ -52,6 +65,14 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     return SafeArea(
       top: true,
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Lista de Mantenimientos'),
+        ),
+        drawer: DrawerMenuMantenimiento(
+          onOficioSelected: (oficio) {
+            _filterByOficio(oficio);
+          },
+        ),
         body: Column(
           children: [
             searchArea(),
@@ -72,7 +93,6 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
 
           return GestureDetector(
             onTap: () {
-              // Navegar a la pantalla de detalle pasando los datos
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -90,9 +110,6 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                 ),
               );
             },
-            onLongPress: () {
-              log('onLongPress $index');
-            },
             child: Container(
               height: 110,
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -102,10 +119,11 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                 borderRadius: BorderRadius.circular(5),
                 boxShadow: const [
                   BoxShadow(
-                      color: Color.fromARGB(31, 22, 78, 189),
-                      blurRadius: 15,
-                      spreadRadius: 5,
-                      offset: Offset(0, 6))
+                    color: Color.fromARGB(31, 22, 78, 189),
+                    blurRadius: 15,
+                    spreadRadius: 5,
+                    offset: Offset(0, 6),
+                  ),
                 ],
               ),
               child: Row(
@@ -155,8 +173,6 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
 
   AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(
-      switchInCurve: Curves.bounceIn,
-      switchOutCurve: Curves.bounceOut,
       duration: const Duration(milliseconds: 300),
       child: (_searchActive)
           ? Padding(
@@ -167,12 +183,8 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                     child: TextFormField(
                       controller: _searchController,
                       focusNode: _focusNode,
-                      onChanged: (value) {
-                        _updateSearch(value);
-                      },
-                      onFieldSubmitted: (value) {
-                        _updateSearch(value);
-                      },
+                      onChanged: (value) => _updateSearch(value),
+                      onFieldSubmitted: (value) => _updateSearch(value),
                       decoration: const InputDecoration(hintText: 'Buscar...'),
                     ),
                   ),
@@ -195,26 +207,23 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                 ],
               ),
             )
-          : Container(
-              padding: const EdgeInsets.all(2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.keyboard_arrow_left_outlined)),
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _searchActive = !_searchActive;
-                        });
-                        _focusNode.requestFocus();
-                      },
-                      icon: const Icon(Icons.search)),
-                ],
-              ),
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.keyboard_arrow_left_outlined),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _searchActive = !_searchActive;
+                    });
+                    _focusNode.requestFocus();
+                  },
+                  icon: const Icon(Icons.search),
+                ),
+              ],
             ),
     );
   }
