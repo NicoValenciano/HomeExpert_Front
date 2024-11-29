@@ -34,6 +34,11 @@ class CardScreen extends StatelessWidget {
             MaterialPageRoute(
                 builder: (context) => const JardineriaListScreen()),
           );
+        } else if (title == "Limpieza") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LimpiezaListScreen()),
+          );
         }
       }, //termina aca
       child: Container(
