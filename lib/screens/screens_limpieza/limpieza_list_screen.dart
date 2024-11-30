@@ -3,6 +3,8 @@ import 'package:flutter_application_base/screens/detail_screen.dart';
 import 'dart:developer';
 import '../../mocks/limpieza_mock.dart' show listadoLimpieza;
 
+List<bool> _isFavorite = [];
+
 class LimpiezaListScreen extends StatefulWidget {
   const LimpiezaListScreen({super.key});
 
@@ -26,7 +28,9 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   @override
   void initState() {
     super.initState();
+    // Inicialización de variables
     _auxiliarElements = listadoLimpieza;
+    _isFavorite = List.generate(_auxiliarElements.length, (index) => false);
   }
 
   @override
@@ -115,6 +119,110 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     );
   }
 
+  // Expanded listItemsArea() {
+  //   return Expanded(
+  //     child: ListView.builder(
+  //       physics: const BouncingScrollPhysics(),
+  //       itemCount: _auxiliarElements.length,
+  //       itemBuilder: (BuildContext context, int index) {
+  //         final element = _auxiliarElements[index];
+  //         return GestureDetector(
+  //           onTap: () {
+  //             Navigator.push(
+  //               context,
+  //               MaterialPageRoute(
+  //                 builder: (context) => DetailScreen(data: element),
+  //               ),
+  //             );
+  //             FocusManager.instance.primaryFocus?.unfocus();
+  //           },
+  //         onLongPress: () {
+  //           setState(() {
+  //             _isFavorite[index] = !_isFavorite[index];
+  //           });
+  //           log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
+  //         },
+  //           child: Container(
+  //             height: 120,
+  //             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  //             padding: const EdgeInsets.all(12),
+  //             decoration: BoxDecoration(
+  //               color: Colors.grey.shade200,
+  //               borderRadius: BorderRadius.circular(10),
+  //               boxShadow: const [
+  //                 BoxShadow(
+  //                   color: Colors.black12,
+  //                   blurRadius: 10,
+  //                   spreadRadius: 2,
+  //                   offset: Offset(0, 6),
+  //                 )
+  //               ],
+  //             ),
+  //             child: Row(
+  //               children: [
+  //                 ClipRRect(
+  //                   borderRadius: BorderRadius.circular(30),
+  //                   child: Image.asset(
+  //                     'assets/avatars/${element['foto']}.png',
+  //                     width: 60,
+  //                     height: 60,
+  //                     fit: BoxFit.cover,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 12),
+  //                 Expanded(
+  //                   child: Column(
+  //                     mainAxisAlignment: MainAxisAlignment.center,
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     children: [
+  //                       Text(
+  //                         element['nombreCompleto'],
+  //                         style: const TextStyle(
+  //                             fontSize: 17,
+  //                             fontWeight: FontWeight.bold,
+  //                             color: Colors.black),
+  //                       ),
+  //                       Text(
+  //                         element['oficio'],
+  //                         style: const TextStyle(
+  //                             fontSize: 18,
+  //                             fontWeight: FontWeight.bold,
+  //                             color: Color.fromARGB(100, 1, 112, 122)),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Icon(
+  //                   element['disponibilidad']
+  //                       ? Icons.event_available_outlined
+  //                       : Icons.highlight_off,
+  //                   color: element['disponibilidad']
+  //                       ? const Color.fromARGB(255, 1, 158, 30)
+  //                       : const Color.fromARGB(255, 248, 55, 42),
+  //                 ),
+  //                 const SizedBox(width: 20),
+  //                 Row(
+  //                   children: [
+  //                     Text(
+  //                       element['calificacion'].toString(),
+  //                       style:
+  //                           const TextStyle(fontSize: 15, color: Colors.black),
+  //                     ),
+  //                     const Icon(
+  //                       Icons.grade,
+  //                       color: Color.fromARGB(255, 254, 217, 32),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
+
   Expanded listItemsArea() {
     return Expanded(
       child: ListView.builder(
@@ -133,7 +241,10 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
               FocusManager.instance.primaryFocus?.unfocus();
             },
             onLongPress: () {
-              log('onLongPress $index');
+              setState(() {
+                _isFavorite[index] = !_isFavorite[index];
+              });
+              log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
             },
             child: Container(
               height: 120,
@@ -166,21 +277,21 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           element['nombreCompleto'],
                           style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.black),
                         ),
                         Text(
-                          '\$${element['precio']}',
+                          element['oficio'],
                           style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black),
+                              color: Color.fromARGB(100, 1, 112, 122)),
                         ),
                       ],
                     ),
@@ -206,6 +317,12 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                         color: Color.fromARGB(255, 254, 217, 32),
                       ),
                     ],
+                  ),
+                  const SizedBox(width: 20),
+                  // Ícono dinámico para favorito
+                  Icon(
+                    _isFavorite[index] ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite[index] ? Colors.red : Colors.grey,
                   ),
                 ],
               ),
@@ -272,7 +389,10 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                   ),
                   const Text(
                     'Limpieza',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
                   ),
                   IconButton(
                     onPressed: () {
