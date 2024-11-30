@@ -2,7 +2,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Carlos Pérez",
     "foto": "avatar1",
-    "precio": "2000",
+    "precio": "4000",
     "disponibilidad": true,
     "fechaNac": "1978-01-01T00:00:00.000Z",
     "calificacion": "4",
@@ -13,7 +13,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "María González",
     "foto": "avatar2",
-    "precio": "3000",
+    "precio": "4500",
     "disponibilidad": true,
     "fechaNac": "1991-01-01T00:00:00.000Z",
     "calificacion": "5",
@@ -35,7 +35,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Ana López",
     "foto": "avatar4",
-    "precio": "2500",
+    "precio": "4500",
     "disponibilidad": true,
     "fechaNac": "1998-01-01T00:00:00.000Z",
     "calificacion": "4",
@@ -46,7 +46,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Jorge Martínez",
     "foto": "avatar5",
-    "precio": "5000",
+    "precio": "2500",
     "disponibilidad": false,
     "fechaNac": "1989-01-01T00:00:00.000Z",
     "calificacion": "2",
@@ -57,7 +57,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Sofía González",
     "foto": "avatar1",
-    "precio": "2500",
+    "precio": "3500",
     "disponibilidad": true,
     "fechaNac": "1990-02-15T00:00:00.000Z",
     "calificacion": "4",
@@ -79,7 +79,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Macarena Pérez",
     "foto": "avatar3",
-    "precio": "3500",
+    "precio": "4000",
     "disponibilidad": true,
     "fechaNac": "1992-08-20T00:00:00.000Z",
     "calificacion": "5",
@@ -137,7 +137,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
     "precio": "3000",
     "disponibilidad": false,
     "fechaNac": "1993-01-05T00:00:00.000Z",
-    "calificacion": "5",
+    "calificacion": "1",
     "sexo": "female",
     "oficio": "Limpieza de oficinas",
     "id": "13"
@@ -189,7 +189,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Verónica García",
     "foto": "avatar13",
-    "precio": "2500",
+    "precio": "3500",
     "disponibilidad": false,
     "fechaNac": "1990-12-05T00:00:00.000Z",
     "calificacion": "5",
@@ -214,7 +214,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
     "precio": "3500",
     "disponibilidad": false,
     "fechaNac": "1989-05-25T00:00:00.000Z",
-    "calificacion": "3",
+    "calificacion": "1",
     "sexo": "female",
     "oficio": "Limpieza de casas",
     "id": "20"
@@ -269,7 +269,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
     "precio": "3000",
     "disponibilidad": false,
     "fechaNac": "1994-01-30T00:00:00.000Z",
-    "calificacion": "3",
+    "calificacion": "4",
     "sexo": "female",
     "oficio": "Limpieza de oficinas",
     "id": "25"
@@ -310,7 +310,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Tiago Sánchez",
     "foto": "avatar24",
-    "precio": "4000",
+    "precio": "2000",
     "disponibilidad": false,
     "fechaNac": "1985-01-20T00:00:00.000Z",
     "calificacion": "2",
@@ -335,7 +335,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
     "precio": "5000",
     "disponibilidad": true,
     "fechaNac": "1987-09-15T00:00:00.000Z",
-    "calificacion": "3",
+    "calificacion": "5",
     "sexo": "male",
     "oficio": "Limpieza de casas",
     "id": "31"
@@ -346,7 +346,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
     "precio": "2500",
     "disponibilidad": true,
     "fechaNac": "1989-12-28T00:00:00.000Z",
-    "calificacion": "4",
+    "calificacion": "3",
     "sexo": "male",
     "oficio": "Limpieza de patios",
     "id": "32"
@@ -354,7 +354,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Carlos Fernández",
     "foto": "avatar28",
-    "precio": "3000",
+    "precio": "2000",
     "disponibilidad": false,
     "fechaNac": "1993-07-04T00:00:00.000Z",
     "calificacion": "2",
@@ -365,7 +365,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Luis Pérez",
     "foto": "avatar29",
-    "precio": "3500",
+    "precio": "5000",
     "disponibilidad": true,
     "fechaNac": "1990-03-15T00:00:00.000Z",
     "calificacion": "5",
@@ -390,7 +390,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
     "precio": "4500",
     "disponibilidad": false,
     "fechaNac": "1991-11-30T00:00:00.000Z",
-    "calificacion": "4",
+    "calificacion": "5",
     "sexo": "male",
     "oficio": "Limpieza de oficinas",
     "id": "36"
@@ -431,7 +431,7 @@ final List<Map<String, dynamic>> listadoLimpieza = [
   {
     "nombreCompleto": "Esteban Martínez",
     "foto": "avatar35",
-    "precio": "3500",
+    "precio": "4500",
     "disponibilidad": true,
     "fechaNac": "1992-12-03T00:00:00.000Z",
     "calificacion": "5",
