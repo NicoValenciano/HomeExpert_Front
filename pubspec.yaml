@@ -54,7 +54,6 @@ flutter:
     - assets/fonts/
     - assets/images/ 
     - assets/loading.gif   
-    - assets/fonts/
   fonts:
     - family: DancingScript
       fonts:
