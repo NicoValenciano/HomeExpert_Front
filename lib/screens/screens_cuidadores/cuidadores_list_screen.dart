@@ -109,7 +109,7 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(25),
                   child: Image.asset(
-                    'assets/m_avatars/${element['foto']}.png',
+                    'assets/avatars/${element['foto']}.png',
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
