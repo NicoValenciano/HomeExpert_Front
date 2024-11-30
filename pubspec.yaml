@@ -48,11 +48,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+
   assets:
-    - assets/loading.gif
-    - assets/images/
-    - assets/avatars/
-    - assets/m_avatars/    
+    - assets/avatars/  
+    - assets/fonts/
+    - assets/images/ 
+    - assets/loading.gif   
     - assets/fonts/
   fonts:
     - family: DancingScript
