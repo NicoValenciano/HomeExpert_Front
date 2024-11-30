@@ -9,14 +9,15 @@ class CustomListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // Obtiene los argumentos pasados
     final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
+            {};
     // Accede a cada argumento con su clave
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('CustomListItem'),
+        title: const Text('Perfil del experto'),
         elevation: 10,
       ),
       body: SingleChildScrollView(
@@ -42,48 +43,162 @@ class BodyProfileCustomItem extends StatelessWidget {
   final Map<String, dynamic> args;
 
   const BodyProfileCustomItem({super.key, required this.args});
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SwitchListTile.adaptive(
-          title: const Text('Favorito'),
-          value: args['favorite'],
-          onChanged: (value) {},
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.all(8),
+          child: ListTile(
+            title: const Text('Disponibilidad'),
+            trailing: Icon(
+              args['disponibilidad'] ?? false
+                  ? Icons.check_circle
+                  : Icons.cancel,
+              color:
+                  args['disponibilidad'] ?? false ? Colors.green : Colors.red,
+            ),
+          ),
         ),
-        const SizedBox(
-          height: 15,
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Nombre',
+                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(args['name'] ?? '',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
         ),
-        TextFormField(
-            onChanged: (value) {},
-            style: const TextStyle(fontSize: 18),
-            initialValue: args['cargo'] ?? '',
-            decoration: decorationInput(
-                label: 'Cargo', helperText: 'Ingresar número sin 0 ni 15')),
-        const SizedBox(
-          height: 15,
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Fecha de Nacimiento',
+                        style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    Text(args['fecha_nacimiento'] ?? '',
+                        style: const TextStyle(fontSize: 18)),
+                  ],
+                ),
+                const Icon(Icons.calendar_today),
+              ],
+            ),
+          ),
         ),
-        TextFormField(
-            onChanged: (value) {},
-            style: const TextStyle(fontSize: 18),
-            initialValue: args['name'] ?? '',
-            keyboardType: TextInputType.text,
-            decoration: decorationInput(label: 'Nombre y Apellido')),
-        const SizedBox(
-          height: 15,
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Precio',
+                        style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    Text('\$${args['precio'] ?? ''}',
+                        style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green)),
+                  ],
+                ),
+                const Icon(Icons.attach_money, color: Colors.green),
+              ],
+            ),
+          ),
         ),
-        TextFormField(
-            onChanged: (value) {},
-            style: const TextStyle(fontSize: 18),
-            initialValue: args['stars'].toString(),
-            keyboardType: TextInputType.text,
-            decoration: decorationInput(label: 'Stars')),
-        const SizedBox(
-          height: 15,
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Calificación',
+                        style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (index) => Icon(
+                          Icons.star,
+                          color: index <
+                                  (double.parse(
+                                              args['calificacion'].toString()) /
+                                          2)
+                                      .round()
+                              ? Colors.amber
+                              : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Text('${args['calificacion']}/10',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Sexo',
+                        style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    Text(_traducirSexo(args['sexo']),
+                        style: const TextStyle(fontSize: 18)),
+                  ],
+                ),
+                Icon(
+                  args['sexo'] == 'male' ? Icons.male : Icons.female,
+                  size: 28,
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
+  }
+
+  String _traducirSexo(String? sexo) {
+    final Map<String, String> traduccionSexo = {
+      'male': 'Masculino',
+      'female': 'Femenino',
+    };
+    
+    // Devolvemos la traducción o 'No especificado' si no coincide
+    return traduccionSexo[sexo?.toLowerCase()] ?? 'No especificado';
   }
 
   InputDecoration decorationInput(

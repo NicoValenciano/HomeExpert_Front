@@ -152,7 +152,7 @@ class HeaderDetail extends StatelessWidget {
       child: Center(
         child: CircleAvatar(
           radius: 100,
-          backgroundImage: AssetImage('assets/m_avatars/$avatar.png'),
+          backgroundImage: AssetImage('assets/avatars/$avatar.png'),
         ),
       ),
     );

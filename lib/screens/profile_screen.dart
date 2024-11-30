@@ -174,8 +174,8 @@ class HeaderProfile extends StatelessWidget {
           radius: 100,
           backgroundImage: AssetImage(
             peopleProvider.isMale
-                ? 'assets/avatars/avatar1.png'
-                : 'assets/avatars/avatar5.png',
+                ? 'assets/avatars/avatar23.png'
+                : 'assets/avatars/avatar25.png',
           ),
         ),
       ),

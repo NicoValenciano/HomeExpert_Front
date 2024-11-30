@@ -1,29 +1,27 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import '../../mocks/mantenimiento_mock.dart' show elements;
-import 'drawer_menu_mantenimiento.dart';
+import '../../mocks/paseadores_mock.dart' show elementsPaseadores;
 
-class MantenimientoListScreen extends StatefulWidget {
-  const MantenimientoListScreen({super.key});
-
+class PaseadoresListScreen extends StatefulWidget {
+  const PaseadoresListScreen({super.key});
   @override
-  State<MantenimientoListScreen> createState() =>
-      _MantenimientoListScreenState();
+  State<PaseadoresListScreen> createState() => _PaseadoresListScreenState();
 }
 
-class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
-  List<Map<String, dynamic>> _auxiliarElements = [];
+class _PaseadoresListScreenState extends State<PaseadoresListScreen> {
+  List<Map<String, dynamic>> _auxiliarElementsPaseadores = [];
   String _searchQuery = '';
   bool _searchActive = false;
+  bool _showAvailable = true;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  int _selectedIndex = 0; // Índice para el BottomNavigationBar
 
   @override
   void initState() {
     super.initState();
-    _auxiliarElements = elements;
+    _auxiliarElementsPaseadores = elementsPaseadores;
   }
 
   @override
@@ -37,10 +35,10 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     setState(() {
       _searchQuery = query ?? '';
       if (_searchQuery.isEmpty) {
-        _auxiliarElements = elements;
+        _auxiliarElementsPaseadores = elementsPaseadores;
       } else {
-        _auxiliarElements = elements.where((element) {
-          return element['id']
+        _auxiliarElementsPaseadores = elementsPaseadores.where((paseador) {
+          return paseador['id']
               .toLowerCase()
               .contains(_searchQuery.toLowerCase());
         }).toList();
@@ -48,14 +46,30 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     });
   }
 
-  void _filterByOficio(String oficio) {
+  // Función para filtrar por disponibilidad
+  void _filterAvailable(bool available) {
     setState(() {
-      _auxiliarElements = elements.where((element) {
-        return element['oficio'] == oficio &&
-            (element['nombreCompleto']
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()));
+      _showAvailable = available;
+      _auxiliarElementsPaseadores = elementsPaseadores.where((paseador) {
+        return paseador['disponibilidad'] == available;
       }).toList();
+    });
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+
+      if (_selectedIndex == 0) {
+        // Mostrar solo disponibles
+        _filterAvailable(true);
+      } else if (_selectedIndex == 1) {
+        // Mostrar solo no disponibles
+        _filterAvailable(false);
+      } else {
+        // Mostrar todos
+        _auxiliarElementsPaseadores = elementsPaseadores;
+      }
     });
   }
 
@@ -64,18 +78,28 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     return SafeArea(
       top: true,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Lista de Mantenimientos'),
-        ),
-        drawer: DrawerMenuMantenimiento(
-          onOficioSelected: (oficio) {
-            _filterByOficio(oficio);
-          },
-        ),
         body: Column(
           children: [
             searchArea(),
             listItemsArea(),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.check_circle),
+              label: 'Disponibles',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.cancel),
+              label: 'No disponibles',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group),
+              label: 'Todos',
+            ),
           ],
         ),
       ),
@@ -86,9 +110,9 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     return Expanded(
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
-        itemCount: _auxiliarElements.length,
+        itemCount: _auxiliarElementsPaseadores.length,
         itemBuilder: (BuildContext context, int index) {
-          final element = _auxiliarElements[index];
+          final paseador = _auxiliarElementsPaseadores[index];
 
           return GestureDetector(
             onTap: () {
@@ -96,24 +120,22 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                 context,
                 'custom_list_item',
                 arguments: <String, dynamic>{
-                  'avatar': element['foto'],
-                  'name': element['nombreCompleto'],
-                  'fecha_nacimiento': element['fechaNac'].split('T')[0],
-                  'disponibilidad': element['disponibilidad'],
-                  'precio': element['precio'],
-                  'calificacion': element['calificacion'],
-                  'id': element['id'],
-                  'sexo': element['sexo']
+                  'precio': paseador['precio'],
+                  'name': paseador['nombreCompleto'],
+                  'sexo': paseador['sexo'],
+                  'avatar': paseador['foto'],
+                  'disponibilidad': paseador['disponibilidad'],
+                  'calificacion': paseador['calificacion'],
+                  'fecha_nacimiento': paseador['fechaNacimiento']
                 },
               );
               FocusManager.instance.primaryFocus?.unfocus();
             },
             onLongPress: () {
               log('onLongPress $index');
-              _showRatingPopup(context, index);
             },
             child: Container(
-              height: 110,
+              height: 100,
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -121,11 +143,10 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                 borderRadius: BorderRadius.circular(5),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color.fromARGB(31, 22, 78, 189),
-                    blurRadius: 15,
-                    spreadRadius: 5,
-                    offset: Offset(0, 6),
-                  ),
+                      color: Color.fromARGB(31, 22, 78, 189),
+                      blurRadius: 15,
+                      spreadRadius: 5,
+                      offset: Offset(0, 6))
                 ],
               ),
               child: Row(
@@ -133,7 +154,7 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(25),
                     child: Image.asset(
-                      'assets/avatars/${element['foto']}.png',
+                      'assets/avatars/${paseador['foto']}.png',
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,
@@ -146,24 +167,26 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          element['nombreCompleto'],
+                          paseador['id'],
+                        ),
+                        Text(
+                          paseador['nombreCompleto'],
                           style: const TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
-                        Text('Precio: ${element['precio']}'),
-                        Text('Oficio: ${element['oficio']}'),
+                        Text('Precio: \$${paseador['precio']}'),
                       ],
                     ),
                   ),
                   Icon(
-                    element['disponibilidad']
-                        ? Icons.check_circle
-                        : Icons.cancel,
+                    paseador['disponibilidad']
+                        ? Icons.verified
+                        : Icons.error_outline,
                     color:
-                        element['disponibilidad'] ? Colors.green : Colors.red,
+                        paseador['disponibilidad'] ? Colors.green : Colors.red,
                   ),
                   const SizedBox(width: 10),
-                  Text('${element['calificacion']}'),
+                  Text('${paseador['calificacion']}'),
                 ],
               ),
             ),
@@ -175,6 +198,8 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
 
   AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(
+      switchInCurve: Curves.bounceIn,
+      switchOutCurve: Curves.bounceOut,
       duration: const Duration(milliseconds: 300),
       child: (_searchActive)
           ? Padding(
@@ -185,8 +210,12 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                     child: TextFormField(
                       controller: _searchController,
                       focusNode: _focusNode,
-                      onChanged: (value) => _updateSearch(value),
-                      onFieldSubmitted: (value) => _updateSearch(value),
+                      onChanged: (value) {
+                        _updateSearch(value);
+                      },
+                      onFieldSubmitted: (value) {
+                        _updateSearch(value);
+                      },
                       decoration: const InputDecoration(hintText: 'Buscar...'),
                     ),
                   ),
@@ -209,55 +238,27 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                 ],
               ),
             )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.keyboard_arrow_left_outlined),
-                ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _searchActive = !_searchActive;
-                    });
-                    _focusNode.requestFocus();
-                  },
-                  icon: const Icon(Icons.search),
-                ),
-              ],
-            ),
-    );
-  }
-
-  void _showRatingPopup(BuildContext context, int index) {
-    final rating = double.parse(_auxiliarElements[index]["calificacion"]);
-    final stars = (rating / 2).round();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        content: SizedBox(
-          height: 80,
-          child: Column(
-            children: [
-              const Text('Calificación',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return Icon(
-                    index < stars ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 30,
-                  );
-                }),
+          : Container(
+              padding: const EdgeInsets.all(2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.keyboard_arrow_left_outlined)),
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _searchActive = !_searchActive;
+                        });
+                        _focusNode.requestFocus();
+                      },
+                      icon: const Icon(Icons.search)),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
