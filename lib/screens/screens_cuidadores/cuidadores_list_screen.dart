@@ -17,6 +17,10 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  RangeValues _currentRangeValues = const RangeValues(0, 1000);
+  final double _minPrice = 0;
+  final double _maxPrice = 1000;
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +49,16 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
     });
   }
 
+  void _filterByPriceRange() {
+    setState(() {
+      _auxiliarElements = elements.where((element) {
+        double price = double.parse(element['precio'].toString());
+        return price >= _currentRangeValues.start &&
+            price <= _currentRangeValues.end;
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -53,6 +67,36 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
         body: Column(
           children: [
             searchArea(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('\$${_currentRangeValues.start.round()}'),
+                      Text('\$${_currentRangeValues.end.round()}'),
+                    ],
+                  ),
+                  RangeSlider(
+                    values: _currentRangeValues,
+                    min: _minPrice,
+                    max: _maxPrice,
+                    divisions: 100,
+                    labels: RangeLabels(
+                      _currentRangeValues.start.round().toString(),
+                      _currentRangeValues.end.round().toString(),
+                    ),
+                    onChanged: (RangeValues values) {
+                      setState(() {
+                        _currentRangeValues = values;
+                        _filterByPriceRange();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
             listItemsArea(),
           ],
         ),
@@ -60,96 +104,96 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
     );
   }
 
- Expanded listItemsArea() {
-  return Expanded(
-    child: ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      itemCount: _auxiliarElements.length,
-      itemBuilder: (BuildContext context, int index) {
-        final element = _auxiliarElements[index];
+  Expanded listItemsArea() {
+    return Expanded(
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        itemCount: _auxiliarElements.length,
+        itemBuilder: (BuildContext context, int index) {
+          final element = _auxiliarElements[index];
 
-        return GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              'custom_list_item',
-              arguments: <String, dynamic>{
-                'avatar': element['foto'],
-                'name': element['nombreCompleto'],
-                'fecha_nacimiento': element['fechaNacimiento'].split('T')[0],
-                'disponibilidad': element['disponibilidad'],
-                'precio': element['precio'],
-                'calificacion': element['calificacion'],
-                'id': element['id'],
-                'sexo': element['sexo']
-              },
-            );
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          onLongPress: () {
-            log('onLongPress $index');
-          },
-          child: Container(
-            height: 100,
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-              boxShadow: const [
-                BoxShadow(
-                    color: Color.fromARGB(31, 22, 78, 189),
-                    blurRadius: 15,
-                    spreadRadius: 5,
-                    offset: Offset(0, 6))
-              ],
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
-                  child: Image.asset(
-                    'assets/avatars/${element['foto']}.png',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                'perfil_experto_item',
+                arguments: <String, dynamic>{
+                  'avatar': element['foto'],
+                  'name': element['nombreCompleto'],
+                  'fecha_nacimiento': element['fechaNacimiento'].split('T')[0],
+                  'disponibilidad': element['disponibilidad'],
+                  'precio': element['precio'],
+                  'calificacion': element['calificacion'],
+                  'id': element['id'],
+                  'sexo': element['sexo']
+                },
+              );
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            onLongPress: () {
+              log('onLongPress $index');
+            },
+            child: Container(
+              height: 100,
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color.fromARGB(31, 22, 78, 189),
+                      blurRadius: 15,
+                      spreadRadius: 5,
+                      offset: Offset(0, 6))
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: Image.asset(
+                      'assets/avatars/${element['foto']}.png',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        element['id'],
-                      ),
-                      Text(
-                        element['nombreCompleto'],
-                        style: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                      Text('Precio: \$${element['precio']}'),
-                    ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          element['id'],
+                        ),
+                        Text(
+                          element['nombreCompleto'],
+                          style: const TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
+                        Text('Precio: \$${element['precio']}'),
+                      ],
+                    ),
                   ),
-                ),
-                Icon(
-                  element['disponibilidad']
-                      ? Icons.check_circle
-                      : Icons.cancel,
-                  color: element['disponibilidad'] ? Colors.green : Colors.red,
-                ),
-                const SizedBox(width: 10),
-                Text('${element['calificacion']}'),
-              ],
+                  Icon(
+                    element['disponibilidad']
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                    color:
+                        element['disponibilidad'] ? Colors.green : Colors.red,
+                  ),
+                  const SizedBox(width: 10),
+                  Text('${element['calificacion']}'),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
-
+          );
+        },
+      ),
+    );
+  }
 
   AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(

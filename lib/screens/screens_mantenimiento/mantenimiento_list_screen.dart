@@ -94,7 +94,7 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
             onTap: () {
               Navigator.pushNamed(
                 context,
-                'custom_list_item',
+                'perfil_experto_item',
                 arguments: <String, dynamic>{
                   'avatar': element['foto'],
                   'name': element['nombreCompleto'],

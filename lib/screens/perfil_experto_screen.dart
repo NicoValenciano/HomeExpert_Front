@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CustomListItem extends StatelessWidget {
-  const CustomListItem({
+class PerfilExpertoItem extends StatelessWidget {
+  const PerfilExpertoItem({
     super.key,
   });
 
@@ -196,7 +196,7 @@ class BodyProfileCustomItem extends StatelessWidget {
       'male': 'Masculino',
       'female': 'Femenino',
     };
-    
+
     // Devolvemos la traducción o 'No especificado' si no coincide
     return traduccionSexo[sexo?.toLowerCase()] ?? 'No especificado';
   }

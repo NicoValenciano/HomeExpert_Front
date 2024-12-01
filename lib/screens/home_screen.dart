@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/screens/screens.dart';
-import 'package:flutter_application_base/widgets/promo_card_swiper.dart';
+import 'package:home_expert_front/widgets/widgets.dart';
 
 final List<Map<String, String>> cardData = [
   {

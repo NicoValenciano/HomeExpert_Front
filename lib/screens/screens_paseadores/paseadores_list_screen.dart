@@ -118,14 +118,14 @@ class _PaseadoresListScreenState extends State<PaseadoresListScreen> {
             onTap: () {
               Navigator.pushNamed(
                 context,
-                'custom_list_item',
+                'perfil_experto_item',
                 arguments: <String, dynamic>{
                   'precio': paseador['precio'],
                   'name': paseador['nombreCompleto'],
                   'sexo': paseador['sexo'],
                   'avatar': paseador['foto'],
                   'disponibilidad': paseador['disponibilidad'],
-                  'calificacion': paseador['calificacion'],
+                  'calificacion': paseador['calificacion'] / 10,
                   'fecha_nacimiento': paseador['fechaNacimiento']
                 },
               );

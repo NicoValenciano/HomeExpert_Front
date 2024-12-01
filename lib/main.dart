@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/screens/screens.dart';
+import 'package:home_expert_front/screens/screens.dart';
 import 'providers/theme_provider.dart';
-import 'package:flutter_application_base/providers/people_provider.dart';
+import 'package:home_expert_front/providers/people_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -29,9 +29,10 @@ class MyApp extends StatelessWidget {
       initialRoute: 'home', // Ruta inicial
       routes: {
         'home': (context) => const HomeScreen(), // Pantalla principal
-        'profile': (context) => const ProfileScreen(), // Pantalla de perfil
-        'custom_list_item': (context) =>
-            const CustomListItem(), // Pantalla de perfil
+        'profile': (context) =>
+            const ProfileScreen(), // Pantalla de perfil de usuario
+        'perfil_experto_item': (context) =>
+            const PerfilExpertoItem(), // Pantalla de perfil de experto
       },
     );
   }

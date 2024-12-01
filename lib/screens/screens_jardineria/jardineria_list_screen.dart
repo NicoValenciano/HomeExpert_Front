@@ -1,4 +1,4 @@
-import 'package:flutter_application_base/mocks/jardineria_mock.dart'
+import 'package:home_expert_front/mocks/jardineria_mock.dart'
     show elements_jardineria;
 import 'package:flutter/material.dart';
 
@@ -112,7 +112,7 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, 'custom_list_item',
+              Navigator.pushNamed(context, 'perfil_experto_item',
                   arguments: <String, dynamic>{
                     'avatar': _auxiliarElements[index][0],
                     'name': _auxiliarElements[index][1],
