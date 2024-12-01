@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 class DrawerMenu extends StatelessWidget {
   final List<Map<String, dynamic>> _menuItems = <Map<String, dynamic>>[
     {'route': 'home', 'title': 'Inicio', 'icon': Icons.home},
-    {'title': 'Registrarme', 'icon': Icons.person_add},
-    {'title': 'Buscar', 'icon': Icons.search},
-    {'title': 'Notificaciones', 'icon': Icons.notifications},
-    {'title': 'Favoritos', 'icon': Icons.favorite},
-    {'title': 'Ofertas', 'icon': Icons.local_offer},
-    {'title': 'Cupones', 'icon': Icons.card_giftcard},
-    {'title': 'Historial', 'icon': Icons.history},
+    {'route': 'home', 'title': 'Registrarme', 'icon': Icons.person_add},
+    {'route': 'home', 'title': 'Buscar', 'icon': Icons.search},
+    {'route': 'home', 'title': 'Notificaciones', 'icon': Icons.notifications},
+    {'route': 'home', 'title': 'Favoritos', 'icon': Icons.favorite},
+    {'route': 'home', 'title': 'Ofertas', 'icon': Icons.local_offer},
+    {'route': 'home', 'title': 'Cupones', 'icon': Icons.card_giftcard},
+    {'route': 'home', 'title': 'Historial', 'icon': Icons.history},
     {'route': 'profile', 'title': 'Mi Cuenta', 'icon': Icons.account_circle},
-    {'title': 'Configuración', 'icon': Icons.settings},
-    {'title': 'Ayuda', 'icon': Icons.help},
+    {'route': 'home', 'title': 'Configuración', 'icon': Icons.settings},
+    {'route': 'home', 'title': 'Ayuda', 'icon': Icons.help},
   ];
 
   DrawerMenu({super.key});
