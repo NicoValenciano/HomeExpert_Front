@@ -17,6 +17,10 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  RangeValues _currentRangeValues = const RangeValues(0, 1000);
+  final double _minPrice = 0;
+  final double _maxPrice = 1000;
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +49,16 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
     });
   }
 
+  void _filterByPriceRange() {
+    setState(() {
+      _auxiliarElements = elements.where((element) {
+        double price = double.parse(element['precio'].toString());
+        return price >= _currentRangeValues.start &&
+            price <= _currentRangeValues.end;
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -53,6 +67,36 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
         body: Column(
           children: [
             searchArea(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('\$${_currentRangeValues.start.round()}'),
+                      Text('\$${_currentRangeValues.end.round()}'),
+                    ],
+                  ),
+                  RangeSlider(
+                    values: _currentRangeValues,
+                    min: _minPrice,
+                    max: _maxPrice,
+                    divisions: 100,
+                    labels: RangeLabels(
+                      _currentRangeValues.start.round().toString(),
+                      _currentRangeValues.end.round().toString(),
+                    ),
+                    onChanged: (RangeValues values) {
+                      setState(() {
+                        _currentRangeValues = values;
+                        _filterByPriceRange();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
             listItemsArea(),
           ],
         ),
