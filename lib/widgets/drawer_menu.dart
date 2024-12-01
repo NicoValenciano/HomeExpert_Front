@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class DrawerMenu extends StatelessWidget {
   final List<Map<String, dynamic>> _menuItems = <Map<String, dynamic>>[
     {'route': 'home', 'title': 'Inicio', 'icon': Icons.home},
-    {'route': 'profile', 'title': 'Registrarme', 'icon': Icons.person_add},
+    {'title': 'Registrarme', 'icon': Icons.person_add},
     {'title': 'Buscar', 'icon': Icons.search},
     {'title': 'Notificaciones', 'icon': Icons.notifications},
     {'title': 'Favoritos', 'icon': Icons.favorite},
     {'title': 'Ofertas', 'icon': Icons.local_offer},
     {'title': 'Cupones', 'icon': Icons.card_giftcard},
     {'title': 'Historial', 'icon': Icons.history},
-    {'title': 'Mi Cuenta', 'icon': Icons.account_circle},
+    {'route': 'profile', 'title': 'Mi Cuenta', 'icon': Icons.account_circle},
     {'title': 'Configuración', 'icon': Icons.settings},
     {'title': 'Ayuda', 'icon': Icons.help},
   ];
@@ -38,7 +38,6 @@ class DrawerMenu extends StatelessWidget {
                         leading: Icon(item['icon']),
                         onTap: () {
                           Navigator.pop(context);
-                          //Navigator.pushReplacementNamed(context, item['route']!);
                           Navigator.pushNamed(context, item['route']!);
                         },
                       ))

@@ -60,96 +60,96 @@ class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
     );
   }
 
- Expanded listItemsArea() {
-  return Expanded(
-    child: ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      itemCount: _auxiliarElements.length,
-      itemBuilder: (BuildContext context, int index) {
-        final element = _auxiliarElements[index];
+  Expanded listItemsArea() {
+    return Expanded(
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        itemCount: _auxiliarElements.length,
+        itemBuilder: (BuildContext context, int index) {
+          final element = _auxiliarElements[index];
 
-        return GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              'custom_list_item',
-              arguments: <String, dynamic>{
-                'avatar': element['foto'],
-                'name': element['nombreCompleto'],
-                'fecha_nacimiento': element['fechaNacimiento'].split('T')[0],
-                'disponibilidad': element['disponibilidad'],
-                'precio': element['precio'],
-                'calificacion': element['calificacion'],
-                'id': element['id'],
-                'sexo': element['sexo']
-              },
-            );
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          onLongPress: () {
-            log('onLongPress $index');
-          },
-          child: Container(
-            height: 100,
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-              boxShadow: const [
-                BoxShadow(
-                    color: Color.fromARGB(31, 22, 78, 189),
-                    blurRadius: 15,
-                    spreadRadius: 5,
-                    offset: Offset(0, 6))
-              ],
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
-                  child: Image.asset(
-                    'assets/avatars/${element['foto']}.png',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                'perfil_experto_item',
+                arguments: <String, dynamic>{
+                  'avatar': element['foto'],
+                  'name': element['nombreCompleto'],
+                  'fecha_nacimiento': element['fechaNacimiento'].split('T')[0],
+                  'disponibilidad': element['disponibilidad'],
+                  'precio': element['precio'],
+                  'calificacion': element['calificacion'],
+                  'id': element['id'],
+                  'sexo': element['sexo']
+                },
+              );
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            onLongPress: () {
+              log('onLongPress $index');
+            },
+            child: Container(
+              height: 100,
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color.fromARGB(31, 22, 78, 189),
+                      blurRadius: 15,
+                      spreadRadius: 5,
+                      offset: Offset(0, 6))
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: Image.asset(
+                      'assets/avatars/${element['foto']}.png',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        element['id'],
-                      ),
-                      Text(
-                        element['nombreCompleto'],
-                        style: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                      Text('Precio: \$${element['precio']}'),
-                    ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          element['id'],
+                        ),
+                        Text(
+                          element['nombreCompleto'],
+                          style: const TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
+                        Text('Precio: \$${element['precio']}'),
+                      ],
+                    ),
                   ),
-                ),
-                Icon(
-                  element['disponibilidad']
-                      ? Icons.check_circle
-                      : Icons.cancel,
-                  color: element['disponibilidad'] ? Colors.green : Colors.red,
-                ),
-                const SizedBox(width: 10),
-                Text('${element['calificacion']}'),
-              ],
+                  Icon(
+                    element['disponibilidad']
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                    color:
+                        element['disponibilidad'] ? Colors.green : Colors.red,
+                  ),
+                  const SizedBox(width: 10),
+                  Text('${element['calificacion']}'),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
-
+          );
+        },
+      ),
+    );
+  }
 
   AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(

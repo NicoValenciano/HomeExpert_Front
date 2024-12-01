@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/providers/people_provider.dart';
-import 'package:flutter_application_base/providers/theme_provider.dart';
-import 'package:flutter_application_base/widgets/drawer_menu.dart';
+import 'package:home_expert_front/providers/people_provider.dart';
+import 'package:home_expert_front/providers/theme_provider.dart';
+import 'package:home_expert_front/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('ProfileScreen'),
+        title: const Text('Mi cuenta'),
         elevation: 10,
       ),
       drawer: DrawerMenu(),

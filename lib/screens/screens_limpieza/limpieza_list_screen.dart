@@ -93,7 +93,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
             onTap: () {
               Navigator.pushNamed(
                 context,
-                'custom_list_item',
+                'perfil_experto_item',
                 arguments: <String, dynamic>{
                   'avatar': element['foto'],
                   'name': element['nombreCompleto'],
@@ -284,10 +284,10 @@ class SexoToggleButton extends StatefulWidget {
   const SexoToggleButton({super.key, required this.onSexoChanged});
 
   @override
-  _SexoToggleButtonState createState() => _SexoToggleButtonState();
+  SexoToggleButtonState createState() => SexoToggleButtonState();
 }
 
-class _SexoToggleButtonState extends State<SexoToggleButton> {
+class SexoToggleButtonState extends State<SexoToggleButton> {
   int _selectedIndex = -1; // Sin selección por defecto
 
   @override
@@ -299,7 +299,6 @@ class _SexoToggleButtonState extends State<SexoToggleButton> {
           isSelected: [
             _selectedIndex == 0,
             _selectedIndex == 1,
-            _selectedIndex == 2,
           ],
           onPressed: (int index) {
             setState(() {
@@ -342,18 +341,6 @@ class _SexoToggleButtonState extends State<SexoToggleButton> {
                 style: TextStyle(
                   color: _selectedIndex == 1
                       ? const Color.fromARGB(255, 249, 44, 112)
-                      : Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                "Otro",
-                style: TextStyle(
-                  color: _selectedIndex == 2
-                      ? const Color.fromARGB(255, 1, 158, 30)
                       : Colors.black,
                   fontWeight: FontWeight.bold,
                 ),

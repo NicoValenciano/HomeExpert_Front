@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/screens/screens.dart';
-import 'package:flutter_application_base/screens/screens_paseadores/paseadores_list_screen.dart';
+import 'package:home_expert_front/screens/screens.dart';
+import 'package:home_expert_front/screens/screens_paseadores/paseadores_list_screen.dart';
 
 class CardScreen extends StatelessWidget {
   final String imagePath;
