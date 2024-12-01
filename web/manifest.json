@@ -1,11 +1,11 @@
 {
-    "name": "flutter_application_base",
-    "short_name": "flutter_application_base",
+    "name": "home_expert_front",
+    "short_name": "home_expert_front",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "aplicacion generada en flutter para ser utilizado como front del proyecto home expert",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

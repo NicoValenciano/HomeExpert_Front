@@ -1,21 +1,25 @@
 import 'dart:developer';
-import 'package:flutter_application_base/mocks/people_mock.dart' show elements;
 import 'package:flutter/material.dart';
+import '../../mocks/cuidadores_mock.dart' show elements;
 
-class CustomListScreen extends StatefulWidget {
-  const CustomListScreen({super.key});
+class CuidadoresListScreen extends StatefulWidget {
+  const CuidadoresListScreen({super.key});
 
   @override
-  State<CustomListScreen> createState() => _CustomListScreenState();
+  State<CuidadoresListScreen> createState() => _CuidadoresListScreenState();
 }
 
-class _CustomListScreenState extends State<CustomListScreen> {
-  List _auxiliarElements = [];
+class _CuidadoresListScreenState extends State<CuidadoresListScreen> {
+  List<Map<String, dynamic>> _auxiliarElements = [];
   String _searchQuery = '';
   bool _searchActive = false;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+
+  RangeValues _currentRangeValues = const RangeValues(0, 1000);
+  final double _minPrice = 0;
+  final double _maxPrice = 1000;
 
   @override
   void initState() {
@@ -25,7 +29,6 @@ class _CustomListScreenState extends State<CustomListScreen> {
 
   @override
   void dispose() {
-    // Limpiar el controlador al destruir el widget
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -35,12 +38,24 @@ class _CustomListScreenState extends State<CustomListScreen> {
     setState(() {
       _searchQuery = query ?? '';
       if (_searchQuery.isEmpty) {
-        _auxiliarElements = elements; // Restablecer al estado original
+        _auxiliarElements = elements;
       } else {
         _auxiliarElements = elements.where((element) {
-          return element[1].toLowerCase().contains(_searchQuery.toLowerCase());
+          return element['id']
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
         }).toList();
       }
+    });
+  }
+
+  void _filterByPriceRange() {
+    setState(() {
+      _auxiliarElements = elements.where((element) {
+        double price = double.parse(element['precio'].toString());
+        return price >= _currentRangeValues.start &&
+            price <= _currentRangeValues.end;
+      }).toList();
     });
   }
 
@@ -49,10 +64,43 @@ class _CustomListScreenState extends State<CustomListScreen> {
     return SafeArea(
       top: true,
       child: Scaffold(
-          body: Column(children: [
-        searchArea(),
-        listItemsArea(),
-      ])),
+        body: Column(
+          children: [
+            searchArea(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('\$${_currentRangeValues.start.round()}'),
+                      Text('\$${_currentRangeValues.end.round()}'),
+                    ],
+                  ),
+                  RangeSlider(
+                    values: _currentRangeValues,
+                    min: _minPrice,
+                    max: _maxPrice,
+                    divisions: 100,
+                    labels: RangeLabels(
+                      _currentRangeValues.start.round().toString(),
+                      _currentRangeValues.end.round().toString(),
+                    ),
+                    onChanged: (RangeValues values) {
+                      setState(() {
+                        _currentRangeValues = values;
+                        _filterByPriceRange();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            listItemsArea(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -62,16 +110,24 @@ class _CustomListScreenState extends State<CustomListScreen> {
         physics: const BouncingScrollPhysics(),
         itemCount: _auxiliarElements.length,
         itemBuilder: (BuildContext context, int index) {
+          final element = _auxiliarElements[index];
+
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, 'custom_list_item',
-                  arguments: <String, dynamic>{
-                    'avatar': elements[index][0],
-                    'name': elements[index][1],
-                    'cargo': elements[index][2],
-                    'stars': elements[index][3],
-                    'favorite': elements[index][4],
-                  });
+              Navigator.pushNamed(
+                context,
+                'perfil_experto_item',
+                arguments: <String, dynamic>{
+                  'avatar': element['foto'],
+                  'name': element['nombreCompleto'],
+                  'fecha_nacimiento': element['fechaNacimiento'].split('T')[0],
+                  'disponibilidad': element['disponibilidad'],
+                  'precio': element['precio'],
+                  'calificacion': element['calificacion'],
+                  'id': element['id'],
+                  'sexo': element['sexo']
+                },
+              );
               FocusManager.instance.primaryFocus?.unfocus();
             },
             onLongPress: () {
@@ -82,41 +138,54 @@ class _CustomListScreenState extends State<CustomListScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Color.fromARGB(31, 206, 219, 246),
-                        blurRadius: 0,
-                        spreadRadius: 3,
-                        offset: Offset(0, 6))
-                  ]),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color.fromARGB(31, 22, 78, 189),
+                      blurRadius: 15,
+                      spreadRadius: 5,
+                      offset: Offset(0, 6))
+                ],
+              ),
               child: Row(
                 children: [
-                  Image.asset(
-                      'assets/avatars/${_auxiliarElements[index][0]}.png',
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: Image.asset(
+                      'assets/avatars/${element['foto']}.png',
                       width: 50,
-                      height: 50),
-                  const SizedBox(
-                    width: 10,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _auxiliarElements[index][1],
+                          element['id'],
+                        ),
+                        Text(
+                          element['nombreCompleto'],
                           style: const TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
-                        Text(_auxiliarElements[index][2]),
+                        Text('Precio: \$${element['precio']}'),
                       ],
                     ),
                   ),
-                  Icon(_auxiliarElements[index][4]
-                      ? Icons.star
-                      : Icons.star_border_outlined),
-                  Text(_auxiliarElements[index][3].toString())
+                  Icon(
+                    element['disponibilidad']
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                    color:
+                        element['disponibilidad'] ? Colors.green : Colors.red,
+                  ),
+                  const SizedBox(width: 10),
+                  Text('${element['calificacion']}'),
                 ],
               ),
             ),
