@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_base/screens/detail_screen.dart';
 import 'dart:developer';
 import '../../mocks/limpieza_mock.dart' show listadoLimpieza;
+
+List<bool> _isFavorite = [];
 
 class LimpiezaListScreen extends StatefulWidget {
   const LimpiezaListScreen({super.key});
@@ -15,18 +16,15 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   String _searchQuery = '';
   bool _searchActive = false;
 
+  String _sexoSeleccionado = "male";
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
-  // Filtro por rango de precios
-  RangeValues _currentRangeValues = const RangeValues(0, 5000);
-  final double _minPrice = 0;
-  final double _maxPrice = 5000;
 
   @override
   void initState() {
     super.initState();
     _auxiliarElements = listadoLimpieza;
+    _isFavorite = List.generate(_auxiliarElements.length, (index) => false);
   }
 
   @override
@@ -46,25 +44,16 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   void _applyFilters() {
     setState(() {
       _auxiliarElements = listadoLimpieza.where((element) {
-        // Filtrar por nombre (si se especifica)
+        // Filtrar por nombre
         bool matchesSearchQuery = element['nombreCompleto']
             .toLowerCase()
             .contains(_searchQuery.toLowerCase());
 
-        // Filtrar por precio
-        double price = double.parse(element['precio'].toString());
-        bool matchesPriceRange = price >= _currentRangeValues.start &&
-            price <= _currentRangeValues.end;
+        // Filtrar por sexo
+        bool matchesSexoQuery = element['sexo'] == _sexoSeleccionado;
 
-        return matchesSearchQuery && matchesPriceRange;
+        return matchesSearchQuery && matchesSexoQuery;
       }).toList();
-    });
-  }
-
-  void _filterByPriceRange(RangeValues values) {
-    setState(() {
-      _currentRangeValues = values;
-      _applyFilters();
     });
   }
 
@@ -75,46 +64,23 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
       child: Scaffold(
         body: Column(
           children: [
-            searchArea(),
-            priceRangeArea(),
-            listItemsArea(),
+            searchArea(), // Búsqueda por nombre
+            SexoToggleButton(
+              onSexoChanged: (sexo) {
+                setState(() {
+                  _sexoSeleccionado = sexo;
+                  _applyFilters();
+                });
+              },
+            ), // Busqueda por sexo
+            listItemsArea(), // Área de la lista de elementos
           ],
         ),
       ),
     );
   }
 
-  // Área del filtro de precio
-  Padding priceRangeArea() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('\$${_currentRangeValues.start.round()}'),
-              Text('\$${_currentRangeValues.end.round()}'),
-            ],
-          ),
-          RangeSlider(
-            values: _currentRangeValues,
-            min: _minPrice,
-            max: _maxPrice,
-            divisions: 100,
-            labels: RangeLabels(
-              _currentRangeValues.start.round().toString(),
-              _currentRangeValues.end.round().toString(),
-            ),
-            onChanged: (RangeValues values) {
-              _filterByPriceRange(values);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
+//Lista de elementos
   Expanded listItemsArea() {
     return Expanded(
       child: ListView.builder(
@@ -124,16 +90,26 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
           final element = _auxiliarElements[index];
           return GestureDetector(
             onTap: () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(data: element),
-                ),
+                'custom_list_item',
+                arguments: <String, dynamic>{
+                  'avatar': element['foto'],
+                  'name': element['nombreCompleto'],
+                  'precio': element['precio'],
+                  'disponibilidad': element['disponibilidad'],
+                  'fecha_nacimiento': element['fechaNac'].split('T')[0],
+                  'calificacion': element['calificacion'],
+                  'oficio': element['oficio'],
+                  'sexo': element['sexo'],
+                },
               );
-              FocusManager.instance.primaryFocus?.unfocus();
             },
             onLongPress: () {
-              log('onLongPress $index');
+              setState(() {
+                _isFavorite[index] = !_isFavorite[index];
+              });
+              log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
             },
             child: Container(
               height: 120,
@@ -166,21 +142,21 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           element['nombreCompleto'],
                           style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.black),
                         ),
                         Text(
-                          '\$${element['precio']}',
+                          element['oficio'],
                           style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black),
+                              color: Color.fromARGB(100, 1, 112, 122)),
                         ),
                       ],
                     ),
@@ -207,6 +183,11 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(width: 20),
+                  Icon(
+                    _isFavorite[index] ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite[index] ? Colors.red : Colors.grey,
+                  ),
                 ],
               ),
             ),
@@ -216,7 +197,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     );
   }
 
-  // Área de búsqueda
+// Sección de búsqueda
   AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(
       switchInCurve: Curves.bounceIn,
@@ -237,7 +218,8 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                       onFieldSubmitted: (value) {
                         _updateSearch(value);
                       },
-                      decoration: const InputDecoration(hintText: 'Buscar...'),
+                      decoration: const InputDecoration(
+                          hintText: 'Buscar por nombre...'),
                     ),
                   ),
                   IconButton(
@@ -253,6 +235,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                       setState(() {
                         _searchActive = false;
                       });
+                      FocusManager.instance.primaryFocus?.unfocus();
                     },
                     icon: const Icon(Icons.arrow_back),
                   ),
@@ -271,8 +254,11 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                     icon: const Icon(Icons.keyboard_arrow_left_outlined),
                   ),
                   const Text(
-                    'Limpieza',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    'Personas de Limpieza',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
                   ),
                   IconButton(
                     onPressed: () {
@@ -286,6 +272,90 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+//Widget de selección de sexo
+class SexoToggleButton extends StatefulWidget {
+  final Function(String) onSexoChanged;
+
+  const SexoToggleButton({super.key, required this.onSexoChanged});
+
+  @override
+  _SexoToggleButtonState createState() => _SexoToggleButtonState();
+}
+
+class _SexoToggleButtonState extends State<SexoToggleButton> {
+  int _selectedIndex = 0; // Por defecto, "Masculino"
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text("Buscar por sexo:"),
+        ToggleButtons(
+          isSelected: [
+            _selectedIndex == 0,
+            _selectedIndex == 1,
+            _selectedIndex == 2,
+          ],
+          onPressed: (int index) {
+            setState(() {
+              _selectedIndex = index;
+
+              String sexo = '';
+              if (index == 0) {
+                sexo = 'male';
+              } else if (index == 1) {
+                sexo = 'female';
+              } else {
+                sexo = 'other';
+              }
+              widget.onSexoChanged(sexo);
+            });
+          },
+          borderRadius: BorderRadius.circular(10),
+          borderColor: Colors.transparent,
+          splashColor: const Color.fromARGB(100, 1, 112, 122),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                "Masculino",
+                style: TextStyle(
+                  color: _selectedIndex == 0 ? Colors.blue : Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                "Femenino",
+                style: TextStyle(
+                  color: _selectedIndex == 1
+                      ? const Color.fromARGB(255, 249, 44, 112)
+                      : Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                "Otro",
+                style: TextStyle(
+                  color: _selectedIndex == 2
+                      ? const Color.fromARGB(255, 1, 158, 30)
+                      : Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
