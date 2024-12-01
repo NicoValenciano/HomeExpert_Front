@@ -16,7 +16,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   String _searchQuery = '';
   bool _searchActive = false;
 
-  String _sexoSeleccionado = "male";
+  String _sexoSeleccionado = "";
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
@@ -50,7 +50,8 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
             .contains(_searchQuery.toLowerCase());
 
         // Filtrar por sexo
-        bool matchesSexoQuery = element['sexo'] == _sexoSeleccionado;
+        bool matchesSexoQuery =
+            _sexoSeleccionado.isEmpty || element['sexo'] == _sexoSeleccionado;
 
         return matchesSearchQuery && matchesSexoQuery;
       }).toList();
@@ -72,15 +73,15 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                   _applyFilters();
                 });
               },
-            ), // Busqueda por sexo
-            listItemsArea(), // Área de la lista de elementos
+            ), // Búsqueda por sexo
+            listItemsArea(), // Lista de elementos
           ],
         ),
       ),
     );
   }
 
-//Lista de elementos
+  //Lista de elementos
   Expanded listItemsArea() {
     return Expanded(
       child: ListView.builder(
@@ -197,7 +198,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     );
   }
 
-// Sección de búsqueda
+  // Sección de búsqueda
   AnimatedSwitcher searchArea() {
     return AnimatedSwitcher(
       switchInCurve: Curves.bounceIn,
@@ -276,7 +277,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   }
 }
 
-//Widget de selección de sexo
+// Widget de selección de sexo
 class SexoToggleButton extends StatefulWidget {
   final Function(String) onSexoChanged;
 
@@ -287,7 +288,7 @@ class SexoToggleButton extends StatefulWidget {
 }
 
 class _SexoToggleButtonState extends State<SexoToggleButton> {
-  int _selectedIndex = 0; // Por defecto, "Masculino"
+  int _selectedIndex = -1; // Sin selección por defecto
 
   @override
   Widget build(BuildContext context) {
@@ -302,14 +303,19 @@ class _SexoToggleButtonState extends State<SexoToggleButton> {
           ],
           onPressed: (int index) {
             setState(() {
-              _selectedIndex = index;
+              if (_selectedIndex == index) {
+                // Si el botón ya está seleccionado, se deselecciona
+                _selectedIndex = -1;
+              } else {
+                _selectedIndex = index;
+              }
 
               String sexo = '';
-              if (index == 0) {
+              if (_selectedIndex == 0) {
                 sexo = 'male';
-              } else if (index == 1) {
+              } else if (_selectedIndex == 1) {
                 sexo = 'female';
-              } else {
+              } else if (_selectedIndex == 2) {
                 sexo = 'other';
               }
               widget.onSexoChanged(sexo);
