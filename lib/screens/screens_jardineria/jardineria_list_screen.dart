@@ -43,7 +43,7 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
             elements_jardineria; // Restablecer al estado original
       } else {
         _auxiliarElements = elements_jardineria.where((element) {
-          return element[1].toLowerCase().contains(_searchQuery.toLowerCase());
+          return element[8].toString().contains(_searchQuery.toLowerCase());
         }).toList();
       }
     });

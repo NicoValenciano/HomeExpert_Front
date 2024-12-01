@@ -45,9 +45,8 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     setState(() {
       _auxiliarElements = listadoLimpieza.where((element) {
         // Filtrar por nombre
-        bool matchesSearchQuery = element['nombreCompleto']
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase());
+        bool matchesSearchQuery =
+            element['id'].toLowerCase().contains(_searchQuery.toLowerCase());
 
         // Filtrar por sexo
         bool matchesSexoQuery =
