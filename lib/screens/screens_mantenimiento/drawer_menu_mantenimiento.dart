@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../mocks/mantenimiento_mock.dart'
-    show elements, obtenerOficiosUnicos;
+import 'package:home_expert_front/model/list_mantenimiento_model.dart';
+import 'package:home_expert_front/model/mantenimiento_model.dart';
+import 'package:home_expert_front/providers/mantenimiento_provider.dart';
+import 'package:provider/provider.dart';
 
 class DrawerMenuMantenimiento extends StatelessWidget {
   final Function(String) onOficioSelected;
@@ -12,7 +14,11 @@ class DrawerMenuMantenimiento extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final oficios = obtenerOficiosUnicos(elements);
+    final mantenimientoProvider =
+        Provider.of<MantenimientoProvider>(context, listen: false);
+    final List<Mantenimiento> elements =
+        mantenimientoProvider.listMantenimiento;
+    final oficios = obtenerOficios(elements);
 
     return Drawer(
       child: ListView(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_expert_front/providers/provider.dart';
 import 'package:home_expert_front/screens/screens.dart';
 import 'providers/theme_provider.dart';
 import 'package:home_expert_front/providers/people_provider.dart';
@@ -10,6 +11,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider(isDarkMode: false)),
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
+        ChangeNotifierProvider(create: (_) => MantenimientoProvider())
       ],
       child: const MyApp(),
     ),
