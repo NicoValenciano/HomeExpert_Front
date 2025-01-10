@@ -233,8 +233,8 @@ class HeaderProfileCustomItem extends StatelessWidget {
       child: Center(
         child: CircleAvatar(
           radius: 100,
-          child: avatar != ""
-              ? Image.asset('assets/avatars/$avatar.png')
+          child: avatar != null && avatar!.isNotEmpty
+              ? Image.asset(avatar!)
               : Image.asset('assets/images/avatar.png'),
         ),
       ),
