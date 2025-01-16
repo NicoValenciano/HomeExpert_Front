@@ -10,6 +10,7 @@ void main() async {
       .ensureInitialized(); // Necesario antes de usar SharedPreferences en main
 
   await Preferences.initShared();
+  
   runApp(
     MultiProvider(
       providers: [

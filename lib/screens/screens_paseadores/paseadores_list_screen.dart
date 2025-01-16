@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:home_expert_front/model/paseadores_model.dart';
-import 'package:home_expert_front/providers/paseadores_provider.dart';
+import 'package:home_expert_front/providers/provider.dart';
 import 'package:provider/provider.dart';
 
 class PaseadoresListScreen extends StatefulWidget {

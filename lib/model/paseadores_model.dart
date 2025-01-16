@@ -21,18 +21,15 @@ class Paseadores {
 
   factory Paseadores.fromJson(Map<String, dynamic> json) {
     return Paseadores(
-      nombre: json['nombre'],
-      precio: json['precio'],
-      fechaNacimiento: json['fechaNacimiento'],
-      disponibilidad: json['disponibilidad'],
-      sexo: json['sexo'],
-      calificacion: json['calificacion'],
-      id: json['id'],
-      foto: json['foto'],
-    );
+        nombre: json['nombre'],
+        precio: json['precio'],
+        fechaNacimiento: json['fechaNacimiento'],
+        disponibilidad: json['disponibilidad'],
+        sexo: json['sexo'],
+        calificacion: json['calificacion'],
+        id: json['id'],
+        foto: json['foto']);
   }
-
-  get apellido => null;
 
   Map<String, dynamic> toJson() {
     return {

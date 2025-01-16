@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:home_expert_front/model/list_paseadores_model.dart';
 import 'package:home_expert_front/model/paseadores_model.dart';
 import 'package:http/http.dart' as http;
+
+import '../model/list_paseadores_model.dart';
 
 class PaseadoresProvider extends ChangeNotifier {
 
