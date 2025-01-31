@@ -19,6 +19,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
         ChangeNotifierProvider(create: (_) => MantenimientoProvider()),
         ChangeNotifierProvider(create: (_) => PaseadoresProvider()),
+        ChangeNotifierProvider(create: (_) => CuidadoPersonasProvider())
       ],
       child: const MyApp(),
     ),
