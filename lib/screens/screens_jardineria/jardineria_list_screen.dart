@@ -1,6 +1,7 @@
-import 'package:home_expert_front/mocks/jardineria_mock.dart'
-    show elements_jardineria;
 import 'package:flutter/material.dart';
+import 'package:home_expert_front/model/jardineria_model.dart';
+import 'package:home_expert_front/providers/jardineria_provider.dart';
+import 'package:provider/provider.dart';
 
 class JardineriaListScreen extends StatefulWidget {
   const JardineriaListScreen({super.key});
@@ -10,52 +11,101 @@ class JardineriaListScreen extends StatefulWidget {
 }
 
 class _JardineriaListScreenState extends State<JardineriaListScreen> {
-  List _auxiliarElements = [];
+  late Future<List<Jardineria>> _auxiliarElements;
+  List<Jardineria> _currentElements = [];
   String _searchQuery = '';
   bool _searchActive = false;
+  bool showAvailable = true;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  int _selectedIndex = 0;
 
-  RangeValues _currentRangeValues = const RangeValues(0, 1000);
+  RangeValues _currentRangeValues = const RangeValues(0, 100000);
   final double _minPrice = 0;
-  final double _maxPrice = 1000;
+  final double _maxPrice = 100000;
 
   @override
   void initState() {
     super.initState();
-    _auxiliarElements = elements_jardineria;
+    _loadData();
   }
 
   @override
   void dispose() {
-    // Limpiar el controlador al destruir el widget
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _loadData() {
+    setState(() {
+      _auxiliarElements = _getJardineriaProvider(context).getJardineria();
+      _auxiliarElements.then((elements) {
+        _currentElements = elements;
+        // Update range values based on actual data
+        double maxPrice = elements
+            .map((e) => e.precio.toDouble())
+            .reduce((a, b) => a > b ? a : b);
+        _currentRangeValues = RangeValues(_minPrice, maxPrice);
+      });
+    });
+  }
+
+  JardineriaProvider _getJardineriaProvider(BuildContext context) {
+    return Provider.of<JardineriaProvider>(context, listen: false);
   }
 
   void _updateSearch(String? query) {
     setState(() {
       _searchQuery = query ?? '';
       if (_searchQuery.isEmpty) {
-        _auxiliarElements =
-            elements_jardineria; // Restablecer al estado original
+        _auxiliarElements = _getJardineriaProvider(context).getJardineria();
       } else {
-        _auxiliarElements = elements_jardineria.where((element) {
-          return element[8].toString().contains(_searchQuery.toLowerCase());
-        }).toList();
+        _auxiliarElements = _getJardineriaProvider(context)
+            .getJardineria()
+            .then((jardineros) => jardineros
+                .where((jardinero) => jardinero.id
+                    .toLowerCase()
+                    .contains(_searchQuery.toLowerCase()))
+                .toList());
+      }
+    });
+  }
+
+  void _filterAvailable(bool available) {
+    setState(() {
+      showAvailable = available;
+      _auxiliarElements = _getJardineriaProvider(context).getJardineria().then(
+          (jardineros) => jardineros
+              .where((jardinero) => jardinero.disponibilidad == available)
+              .toList());
+    });
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      if (_selectedIndex == 0) {
+        _filterAvailable(true);
+      } else if (_selectedIndex == 1) {
+        _filterAvailable(false);
+      } else {
+        _loadData();
       }
     });
   }
 
   void _filterByPriceRange() {
     setState(() {
-      _auxiliarElements = elements_jardineria.where((element) {
-        double price = double.parse(element[5].toString());
-        return price >= _currentRangeValues.start &&
-            price <= _currentRangeValues.end;
-      }).toList();
+      _auxiliarElements =
+          _getJardineriaProvider(context).getJardineria().then((jardineros) {
+        return jardineros.where((jardinero) {
+          double price = double.parse(jardinero.precio.toString());
+          return price >= _currentRangeValues.start &&
+              price <= _currentRangeValues.end;
+        }).toList();
+      });
     });
   }
 
@@ -67,37 +117,26 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
         body: Column(
           children: [
             searchArea(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('\$${_currentRangeValues.start.round()}'),
-                      Text('\$${_currentRangeValues.end.round()}'),
-                    ],
-                  ),
-                  RangeSlider(
-                    values: _currentRangeValues,
-                    min: _minPrice,
-                    max: _maxPrice,
-                    divisions: 100,
-                    labels: RangeLabels(
-                      _currentRangeValues.start.round().toString(),
-                      _currentRangeValues.end.round().toString(),
-                    ),
-                    onChanged: (RangeValues values) {
-                      setState(() {
-                        _currentRangeValues = values;
-                        _filterByPriceRange();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
+            rangeFilterArea(),
             listItemsArea(),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.check_circle),
+              label: 'Disponibles',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.cancel),
+              label: 'No disponibles',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group),
+              label: 'Todos',
+            ),
           ],
         ),
       ),
@@ -106,71 +145,103 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
 
   Expanded listItemsArea() {
     return Expanded(
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: _auxiliarElements.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, 'perfil_experto_item',
-                  arguments: <String, dynamic>{
-                    'avatar': _auxiliarElements[index][0],
-                    'name': _auxiliarElements[index][1],
-                    'cargo': _auxiliarElements[index][2],
-                    'fecha_nacimiento': _auxiliarElements[index][3],
-                    'disponibilidad': _auxiliarElements[index][4],
-                    'precio': _auxiliarElements[index][5],
-                    'ciudad': _auxiliarElements[index][6],
-                    'calificacion': _auxiliarElements[index][7],
-                    'id': _auxiliarElements[index][8],
-                    'sexo': _auxiliarElements[index][9]
-                  });
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            onLongPress: () {
-              _showRatingPopup(context, index);
-            },
-            child: Container(
-              height: 100,
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Color.fromARGB(31, 206, 219, 246),
-                        blurRadius: 0,
-                        spreadRadius: 3,
-                        offset: Offset(0, 6))
-                  ]),
-              child: Row(
-                children: [
-                  Image.asset(
-                      'assets/avatars/${_auxiliarElements[index][0]}.png',
-                      width: 50,
-                      height: 50),
-                  const SizedBox(
-                    width: 10,
+      child: FutureBuilder<List<Jardineria>>(
+        future: _auxiliarElements,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No hay jardineros disponibles'));
+          }
+
+          final jardineros = snapshot.data!;
+          return ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            itemCount: jardineros.length,
+            itemBuilder: (BuildContext context, int index) {
+              final jardinero = jardineros[index];
+              final avatar = 'assets/avatars/avatar$index.png';
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    'perfil_experto_item',
+                    arguments: <String, dynamic>{
+                      'precio': jardinero.precio,
+                      'name': jardinero.name,
+                      'sexo': jardinero.sexo,
+                      'avatar': avatar,
+                      'disponibilidad': jardinero.disponibilidad,
+                      'calificacion': jardinero.calificacion ~/ 10000,
+                      'fecha_nacimiento':
+                          jardinero.fechaNacimiento.split('T')[0]
+                    },
+                  );
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+                onLongPress: () {
+                  _showRatingPopup(context, jardinero.calificacion);
+                },
+                child: Container(
+                  height: 100,
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Color.fromARGB(31, 22, 78, 189),
+                          blurRadius: 15,
+                          spreadRadius: 5,
+                          offset: Offset(0, 6))
+                    ],
                   ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _auxiliarElements[index][1],
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.bold),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(25),
+                        child: Image.asset(
+                          avatar,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
                         ),
-                        Text(_auxiliarElements[index][2]),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(jardinero.id),
+                            Text(
+                              jardinero.name,
+                              style: const TextStyle(
+                                  fontSize: 17, fontWeight: FontWeight.bold),
+                            ),
+                            Text('Precio: \$${jardinero.precio}'),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        jardinero.disponibilidad
+                            ? Icons.verified
+                            : Icons.error_outline,
+                        color: jardinero.disponibilidad
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                      const SizedBox(width: 10),
+                      Text('${jardinero.calificacion}'),
+                    ],
                   ),
-                  const Icon(Icons.attach_money, color: Colors.green),
-                  Text(_auxiliarElements[index][5].toString())
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -197,7 +268,8 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
                       onFieldSubmitted: (value) {
                         _updateSearch(value);
                       },
-                      decoration: const InputDecoration(hintText: 'Buscar...'),
+                      decoration:
+                          const InputDecoration(hintText: 'Buscar por ID'),
                     ),
                   ),
                   IconButton(
@@ -243,9 +315,8 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
     );
   }
 
-  void _showRatingPopup(BuildContext context, int index) {
-    final rating = double.parse(_auxiliarElements[index][7]); // Get rating 0-10
-    final stars = (rating / 2).round(); // Convert to 5 star scale
+  void _showRatingPopup(BuildContext context, int rating) {
+    final stars = ((rating ~/ 10000) / 2).round();
 
     showDialog(
       context: context,
@@ -270,6 +341,43 @@ class _JardineriaListScreenState extends State<JardineriaListScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Container rangeFilterArea() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('\$${_currentRangeValues.start.round()}'),
+              Text('\$${_currentRangeValues.end.round()}'),
+            ],
+          ),
+          RangeSlider(
+            values: _currentRangeValues,
+            min: _minPrice,
+            max: _maxPrice,
+            divisions: 100,
+            labels: RangeLabels(
+              '\$${_currentRangeValues.start.round()}',
+              '\$${_currentRangeValues.end.round()}',
+            ),
+            onChanged: (RangeValues values) {
+              setState(() {
+                _currentRangeValues = values;
+                _auxiliarElements = Future.value(_currentElements
+                    .where((jardinero) =>
+                        jardinero.precio >= values.start &&
+                        jardinero.precio <= values.end)
+                    .toList());
+              });
+            },
+          ),
+        ],
       ),
     );
   }

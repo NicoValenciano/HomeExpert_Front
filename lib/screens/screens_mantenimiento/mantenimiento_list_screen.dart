@@ -199,7 +199,7 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
                                   : Colors.red,
                             ),
                             const SizedBox(width: 10),
-                            Text('${element.calificacion}'),
+                            Text(element.calificacion),
                           ],
                         ),
                       ),

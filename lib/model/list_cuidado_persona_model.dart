@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:home_expert_front/model/cuidadoPersona_model.dart';
+import 'package:home_expert_front/model/cuidado_persona_model.dart';
 
 List<CuidadoPersonas> cuidadoresPersonasFromJson(String str) {
   return List<CuidadoPersonas>.from(

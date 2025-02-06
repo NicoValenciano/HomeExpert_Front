@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:home_expert_front/model/list_cuidadoPersona_model.dart';
-import 'package:home_expert_front/model/cuidadoPersona_model.dart';
+import 'package:home_expert_front/model/list_cuidado_persona_model.dart';
+import 'package:home_expert_front/model/cuidado_persona_model.dart';
 import 'package:http/http.dart' as http;
 
 class CuidadoPersonasProvider extends ChangeNotifier {
