@@ -10,7 +10,7 @@ void main() async {
       .ensureInitialized(); // Necesario antes de usar SharedPreferences en main
 
   await Preferences.initShared();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -19,7 +19,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
         ChangeNotifierProvider(create: (_) => MantenimientoProvider()),
         ChangeNotifierProvider(create: (_) => PaseadoresProvider()),
-        ChangeNotifierProvider(create: (_) => CuidadoPersonasProvider())
+        ChangeNotifierProvider(create: (_) => CuidadoPersonasProvider()),
+        ChangeNotifierProvider(create: (_) => JardineriaProvider())
       ],
       child: const MyApp(),
     ),
