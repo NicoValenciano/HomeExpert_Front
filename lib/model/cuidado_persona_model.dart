@@ -1,3 +1,20 @@
+class CuidadoPersonaResponse {
+  final String msg;
+  final List<CuidadoPersonas> data;
+
+  CuidadoPersonaResponse({
+    required this.msg,
+    required this.data,
+  });
+
+  factory CuidadoPersonaResponse.fromJson(Map<String, dynamic> json) =>
+      CuidadoPersonaResponse(
+        msg: json["msg"],
+        data: List<CuidadoPersonas>.from(
+            json["data"].map((x) => CuidadoPersonas.fromJson(x))),
+      );
+}
+
 class CuidadoPersonas {
   String nombreCompleto;
   String precio;

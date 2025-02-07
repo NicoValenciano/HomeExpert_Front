@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:home_expert_front/providers/limpieza_provider.dart';
 import 'package:home_expert_front/providers/provider.dart';
 import 'package:home_expert_front/screens/screens.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +20,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MantenimientoProvider()),
         ChangeNotifierProvider(create: (_) => PaseadoresProvider()),
         ChangeNotifierProvider(create: (_) => CuidadoPersonasProvider()),
-        ChangeNotifierProvider(create: (_) => LimpiezaProvider())
+        ChangeNotifierProvider(create: (_) => LimpiezaProvider()),
         ChangeNotifierProvider(create: (_) => JardineriaProvider())
       ],
       child: const MyApp(),
