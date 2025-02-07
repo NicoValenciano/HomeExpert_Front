@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:home_expert_front/model//limpieza_model.dart';
+import 'package:home_expert_front/model/limpieza_model.dart';
 
 List<Limpieza> limpiezaFromJson(String str) {
   return List<Limpieza>.from(json.decode(str).map((x) => Limpieza.fromJson(x)));
