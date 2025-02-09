@@ -36,8 +36,7 @@ class CuidadoPersonas {
     this.foto,
   });
 
-  factory CuidadoPersonas.fromJson(Map<String, dynamic> json) {
-    return CuidadoPersonas(
+  factory CuidadoPersonas.fromJson(Map<String, dynamic> json) => CuidadoPersonas(
         nombreCompleto: json['nombreCompleto'],
         precio: json['precio'],
         fechaNacimiento: json['fechaNacimiento'],
@@ -45,9 +44,9 @@ class CuidadoPersonas {
         sexo: json['sexo'],
         calificacion: json['calificacion'],
         id: json['id'],
-        foto: json['foto']);
-  }
-
+        foto: json['foto'],
+  );
+  
   Map<String, dynamic> toJson() {
     return {
       'nombre': nombreCompleto,
