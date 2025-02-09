@@ -8,19 +8,27 @@ class CuidadoPersonasProvider extends ChangeNotifier {
 
   Future<List<CuidadoPersonas>> getCuidador() async {
     try {
-      final url = Uri.https(
-          '66e20943c831c8811b5703f6.mockapi.io', '/cuidadoresPersonas');
-      final response = await http.get(url);
+      //https://homeexpert.onrender.com/api/v1/cuidadoPersona
+      final url = Uri.https('homeexpert.onrender.com', 'api/v1/cuidadoPersona');
+
+      //final url = Uri.https('https://66e20943c831c8811b5703f6.mockapi.io/', '/api/v1/cuidadoPersona'); >> endpoint para consumir por Mockapi
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+      );
 
       if (response.statusCode == 200) {
         listCuidadores = cuidadoresPersonasFromJson(response.body);
         notifyListeners();
         return listCuidadores;
       } else {
-        throw Exception('ocurrio un error: ${response.statusCode}');
+        throw Exception('Error en la solicitud ${response.statusCode}');
       }
     } catch (err) {
-      throw Exception('error: $err');
+      throw Exception('Ocurrio un error $err');
     }
   }
 }

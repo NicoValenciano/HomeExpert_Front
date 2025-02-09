@@ -1,3 +1,20 @@
+class MantenimientoResponse {
+  final String msg;
+  final List<Mantenimiento> data;
+
+  MantenimientoResponse({
+    required this.msg,
+    required this.data,
+  });
+
+  factory MantenimientoResponse.fromJson(Map<String, dynamic> json) =>
+      MantenimientoResponse(
+        msg: json["msg"],
+        data: List<Mantenimiento>.from(
+            json["data"].map((x) => Mantenimiento.fromJson(x))),
+      );
+}
+
 class Mantenimiento {
   String nombreCompleto;
   String precio;

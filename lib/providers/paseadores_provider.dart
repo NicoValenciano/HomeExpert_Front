@@ -5,15 +5,18 @@ import 'package:http/http.dart' as http;
 import '../model/list_paseadores_model.dart';
 
 class PaseadoresProvider extends ChangeNotifier {
-
   List<Paseadores> listPaseadores = [];
 
   Future<List<Paseadores>> getPaseadores() async {
-
     try {
-      final url =
-          Uri.https('66e209c3c831c8811b570593.mockapi.io', 'api/v1/paseador');
-      final response = await http.get(url);
+      final url = Uri.https('homeexpert.onrender.com', 'api/v1/paseador');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+      );
 
       if (response.statusCode == 200) {
         listPaseadores = paseadoresFromJson(response.body);
@@ -26,5 +29,4 @@ class PaseadoresProvider extends ChangeNotifier {
       throw Exception('Ocurrio un error $err');
     }
   }
-
 }

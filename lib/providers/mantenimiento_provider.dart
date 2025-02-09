@@ -8,9 +8,14 @@ class MantenimientoProvider extends ChangeNotifier {
 
   Future<List<Mantenimiento>> getMantenimiento() async {
     try {
-      final url = Uri.https(
-          '66e41d3ed2405277ed132021.mockapi.io', '/api/v1/mantenimiento');
-      final response = await http.get(url);
+      final url = Uri.https('homeexpert.onrender.com', 'api/v1/mantenimiento');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+      );
 
       if (response.statusCode == 200) {
         listMantenimiento = mantenimientoFromJson(response.body);
