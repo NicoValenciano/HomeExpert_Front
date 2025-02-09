@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:home_expert_front/model/paseadores_model.dart';
 
 List<Paseadores> paseadoresFromJson(String str) {
-  return List<Paseadores>.from(
-      jsonDecode(str).map((x) => Paseadores.fromJson(x)));
+  final jsonResponse = PaseadoresResponse.fromJson(json.decode(str));
+  return jsonResponse.data;
 }
 
 String paseadoresToJson(List<Paseadores> data) {
-  return jsonEncode(List<dynamic>.from(data.map((x) => x.toJson())));
+  final response = PaseadoresResponse(msg: "Ok", data: data);
+  return json.encode(response);
 }

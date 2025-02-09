@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:home_expert_front/model/mantenimiento_model.dart';
 
 List<Mantenimiento> mantenimientoFromJson(String str) {
-  return List<Mantenimiento>.from(
-      jsonDecode(str).map((x) => Mantenimiento.fromJson(x)));
+  final jsonResponse = MantenimientoResponse.fromJson(json.decode(str));
+  return jsonResponse.data;
 }
 
 String mantenimientoToJson(List<Mantenimiento> data) {
-  return jsonEncode(List<dynamic>.from(data.map((x) => x.toJson())));
+  final response = MantenimientoResponse(msg: "Ok", data: data);
+  return json.encode(response);
 }
 
 List<String> obtenerOficios(List<Mantenimiento> personas) {

@@ -1,3 +1,20 @@
+class PaseadoresResponse {
+  final String msg;
+  final List<Paseadores> data;
+
+  PaseadoresResponse({
+    required this.msg,
+    required this.data,
+  });
+
+  factory PaseadoresResponse.fromJson(Map<String, dynamic> json) =>
+      PaseadoresResponse(
+        msg: json["msg"],
+        data: List<Paseadores>.from(
+            json["data"].map((x) => Paseadores.fromJson(x))),
+      );
+}
+
 class Paseadores {
   String nombre;
   String precio;
