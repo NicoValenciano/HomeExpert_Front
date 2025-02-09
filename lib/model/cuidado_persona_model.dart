@@ -1,3 +1,20 @@
+class CuidadoPersonaResponse {
+  final String msg;
+  final List<CuidadoPersonas> data;
+
+  CuidadoPersonaResponse({
+    required this.msg,
+    required this.data,
+  });
+
+  factory CuidadoPersonaResponse.fromJson(Map<String, dynamic> json) =>
+      CuidadoPersonaResponse(
+        msg: json["msg"],
+        data: List<CuidadoPersonas>.from(
+            json["data"].map((x) => CuidadoPersonas.fromJson(x))),
+      );
+}
+
 class CuidadoPersonas {
   String nombreCompleto;
   String precio;
@@ -19,8 +36,7 @@ class CuidadoPersonas {
     this.foto,
   });
 
-  factory CuidadoPersonas.fromJson(Map<String, dynamic> json) {
-    return CuidadoPersonas(
+  factory CuidadoPersonas.fromJson(Map<String, dynamic> json) => CuidadoPersonas(
         nombreCompleto: json['nombreCompleto'],
         precio: json['precio'],
         fechaNacimiento: json['fechaNacimiento'],
@@ -28,9 +44,9 @@ class CuidadoPersonas {
         sexo: json['sexo'],
         calificacion: json['calificacion'],
         id: json['id'],
-        foto: json['foto']);
-  }
-
+        foto: json['foto'],
+  );
+  
   Map<String, dynamic> toJson() {
     return {
       'nombre': nombreCompleto,
