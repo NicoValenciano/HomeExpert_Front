@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
 import 'dart:developer';
-import '../../mocks/limpieza_mock.dart' show listadoLimpieza;
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:home_expert_front/model/limpieza_model.dart';
+import 'package:home_expert_front/providers/limpieza_provider.dart';
 
-List<bool> _isFavorite = [];
+Future<List<bool>> _isFavorite = Future.value([]);
 
 class LimpiezaListScreen extends StatefulWidget {
   const LimpiezaListScreen({super.key});
@@ -12,7 +14,7 @@ class LimpiezaListScreen extends StatefulWidget {
 }
 
 class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
-  List<Map<String, dynamic>> _auxiliarElements = [];
+  late Future<List<Limpieza>> _auxiliarElements;
   String _searchQuery = '';
   bool _searchActive = false;
 
@@ -23,8 +25,8 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   @override
   void initState() {
     super.initState();
-    _auxiliarElements = listadoLimpieza;
-    _isFavorite = List.generate(_auxiliarElements.length, (index) => false);
+    _loadData();
+    //_auxiliarElements = listadoLimpieza;
   }
 
   @override
@@ -34,6 +36,17 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     super.dispose();
   }
 
+  void _loadData() {
+    setState(() {
+      _auxiliarElements = _getlimpiezaProvider(context).getLimpieza();
+      _isFavorite = Future.value([]);
+    });
+  }
+
+  LimpiezaProvider _getlimpiezaProvider(BuildContext context) {
+    return Provider.of<LimpiezaProvider>(context, listen: false);
+  }
+
   void _updateSearch(String? query) {
     setState(() {
       _searchQuery = query ?? '';
@@ -41,20 +54,51 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     });
   }
 
+  // void _applyFilters() {
+  //   setState(() {
+  //     _auxiliarElements = _getlimpiezaProvider(context).getLimpieza();
+  //     _auxiliarElements = _getlimpiezaProvider.where((element) {
+  //       // Filtrar por nombre
+  //       bool matchesSearchQuery =
+  //           element['id'].toLowerCase().contains(_searchQuery.toLowerCase());
+
+  //       // Filtrar por sexo
+  //       bool matchesSexoQuery =
+  //           _sexoSeleccionado.isEmpty || element['sexo'] == _sexoSeleccionado;
+
+  //       return matchesSearchQuery && matchesSexoQuery;
+  //     }).toList();
+  //   });
+  // }
   void _applyFilters() {
     setState(() {
-      _auxiliarElements = listadoLimpieza.where((element) {
-        // Filtrar por nombre
-        bool matchesSearchQuery =
-            element['id'].toLowerCase().contains(_searchQuery.toLowerCase());
-
-        // Filtrar por sexo
-        bool matchesSexoQuery =
-            _sexoSeleccionado.isEmpty || element['sexo'] == _sexoSeleccionado;
-
-        return matchesSearchQuery && matchesSexoQuery;
-      }).toList();
+      _auxiliarElements = _fetchFilteredLimpieza();
     });
+  }
+
+  Future<List<Limpieza>> _fetchFilteredLimpieza() async {
+    final limpiezaProvider = _getlimpiezaProvider(context);
+
+    // Obtener la lista de limpieza desde el provider
+    List<Limpieza> limpiezaList = await limpiezaProvider.getLimpieza();
+
+    return limpiezaList.where((element) {
+      // Filtrar por ID
+      bool matchesSearchQuery = _searchQuery.isEmpty ||
+          element.id
+              .toString()
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
+
+      // Verificar si _sexoSeleccionado tiene un valor válido en el enum Sexo
+      Sexo? sexoSeleccionadoEnum = sexoValues.map[_sexoSeleccionado];
+      // Filtrar por sexo
+      bool matchesSexoQuery = _sexoSeleccionado.isEmpty ||
+          (sexoSeleccionadoEnum != null &&
+              element.sexo == sexoSeleccionadoEnum);
+
+      return matchesSearchQuery && matchesSexoQuery;
+    }).toList();
   }
 
   @override
@@ -80,122 +124,393 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     );
   }
 
+  DateTime calcularFechaNacimiento(int edad) {
+    DateTime now = DateTime.now();
+    int anioNacimiento = now.year - edad;
+    return DateTime(anioNacimiento, now.month, now.day);
+  }
+
+  int calcularEdad(DateTime fechaNacimiento) {
+    DateTime now = DateTime.now();
+    int edad = now.year - fechaNacimiento.year;
+
+    // Ajusta si no ha pasado el cumpleaños este año
+    if (now.month < fechaNacimiento.month ||
+        (now.month == fechaNacimiento.month && now.day < fechaNacimiento.day)) {
+      edad--;
+    }
+
+    return edad;
+  }
+
   //Lista de elementos
   Expanded listItemsArea() {
     return Expanded(
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: _auxiliarElements.length,
-        itemBuilder: (BuildContext context, int index) {
-          final element = _auxiliarElements[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                'perfil_experto_item',
-                arguments: <String, dynamic>{
-                  'avatar': element['foto'],
-                  'name': element['nombreCompleto'],
-                  'precio': element['precio'],
-                  'disponibilidad': element['disponibilidad'],
-                  'fecha_nacimiento': element['fechaNac'].split('T')[0],
-                  'calificacion': element['calificacion'],
-                  'oficio': element['oficio'],
-                  'sexo': element['sexo'],
-                },
-              );
-            },
-            onLongPress: () {
-              setState(() {
-                _isFavorite[index] = !_isFavorite[index];
-              });
-              log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
-            },
-            child: Container(
-              height: 120,
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: Offset(0, 6),
-                  )
-                ],
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      'assets/avatars/${element['foto']}.png',
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
+        child: FutureBuilder<List<Limpieza>>(
+      future:
+          _auxiliarElements, // Asume que este es el Future<List<Limpieza>> que ya tienes
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+              child: Text('No hay personal de limpieza disponibles.'));
+        }
+
+        final limpieza = snapshot.data!;
+
+        return FutureBuilder<List<bool>>(
+          future: _isFavorite, // Este es el Future que estamos esperando
+          builder: (context, favoriteSnapshot) {
+            if (favoriteSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (favoriteSnapshot.hasError) {
+              return Center(child: Text('Error: ${favoriteSnapshot.error}'));
+            }
+
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: limpieza.length,
+              itemBuilder: (BuildContext context, int index) {
+                final element = limpieza[index];
+                final avatar = 'assets/avatars/avatar$index.png';
+
+                DateTime fechaNacimiento =
+                    calcularFechaNacimiento(element.edad);
+                int edad = calcularEdad(fechaNacimiento);
+
+                final isFavorite = (favoriteSnapshot.data ??
+                    List.filled(limpieza.length, false))[index];
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      'perfil_experto_item',
+                      arguments: <String, dynamic>{
+                        'avatar': element.foto,
+                        'name': element.nombre,
+                        'precio': element.precio,
+                        'disponibilidad': element.disponible,
+                        'fecha_nacimiento': fechaNacimiento.toString(),
+                        'calificacion': element.calificacion.toString(),
+                        'sexo': element.sexo,
+                      },
+                    );
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  onLongPress: () {
+                    setState(() {
+                      _isFavorite = Future.value(
+                        List.generate(limpieza.length, (i) => i == index),
+                      );
+                    });
+                    log('Elemento $index marcado como favorito');
+                  },
+                  child: Container(
+                    height: 120,
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isFavorite
+                          ? Colors.yellow.shade200
+                          : Colors.grey.shade200, // Usa isFavorite directamente
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                          offset: Offset(0, 6),
+                        )
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    child: Row(
                       children: [
-                        Text(
-                          element['nombreCompleto'],
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Image.asset(
+                            avatar,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        Text(
-                          element['oficio'],
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(100, 1, 112, 122)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                element.nombre,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Text(
+                                'Edad: $edad',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(100, 1, 112, 122),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          element.disponible
+                              ? Icons.check_circle
+                              : Icons.cancel,
+                          color: element.disponible ? Colors.green : Colors.red,
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          isFavorite
+                              ? Icons.favorite
+                              : Icons
+                                  .favorite_border, // Usa isFavorite directamente
+                          color: isFavorite ? Colors.red : Colors.grey,
                         ),
                       ],
                     ),
                   ),
-                  Icon(
-                    element['disponibilidad']
-                        ? Icons.event_available_outlined
-                        : Icons.highlight_off,
-                    color: element['disponibilidad']
-                        ? const Color.fromARGB(255, 1, 158, 30)
-                        : const Color.fromARGB(255, 248, 55, 42),
-                  ),
-                  const SizedBox(width: 20),
-                  Row(
-                    children: [
-                      Text(
-                        element['calificacion'].toString(),
-                        style:
-                            const TextStyle(fontSize: 15, color: Colors.black),
-                      ),
-                      const Icon(
-                        Icons.grade,
-                        color: Color.fromARGB(255, 254, 217, 32),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Icon(
-                    _isFavorite[index] ? Icons.favorite : Icons.favorite_border,
-                    color: _isFavorite[index] ? Colors.red : Colors.grey,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
+                );
+              },
+            );
+
+            //final isFavoriteList = favoriteSnapshot.data ?? List.filled(limpieza.length, false);
+
+            // return ListView.builder(
+            //   physics: const BouncingScrollPhysics(),
+            //   itemCount: limpieza.length,
+            //   itemBuilder: (BuildContext context, int index) {
+            //     final element = limpieza[index];
+            //     final avatar = 'assets/avatars/avatar$index.png';
+
+            //     // Convertir la edad a fecha de nacimiento
+            //     DateTime fechaNacimiento =
+            //         calcularFechaNacimiento(element.edad);
+            //     int edad = calcularEdad(fechaNacimiento);
+
+            //     return GestureDetector(
+            //       onTap: () {
+            //         Navigator.pushNamed(
+            //           context,
+            //           'perfil_experto_item',
+            //           arguments: <String, dynamic>{
+            //             'avatar': element.foto,
+            //             'name': element.nombre,
+            //             'precio': element.precio,
+            //             'disponibilidad': element.disponible,
+            //             'fecha_nacimiento': fechaNacimiento.toString(),
+            //             'calificacion': element.calificacion.toString(),
+            //             'sexo': element.sexo,
+            //           },
+            //         );
+            //         FocusManager.instance.primaryFocus?.unfocus();
+            //       },
+            //       onLongPress: () {
+            //         setState(() {
+            //           // _isFavorite[index] = !_isFavorite[index];
+            //           _isFavorite = Future.value(
+            //             List.generate(limpieza.length, (i) => i == index),
+            //           );
+            //         });
+            //         log('Elemento $index marcado como favorito');
+            //       },
+            //       child: Container(
+            //         height: 120,
+            //         margin:
+            //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            //         padding: const EdgeInsets.all(12),
+            //         decoration: BoxDecoration(
+            //           color: Colors.grey.shade200,
+            //           borderRadius: BorderRadius.circular(10),
+            //           boxShadow: const [
+            //             BoxShadow(
+            //               color: Colors.black12,
+            //               blurRadius: 10,
+            //               spreadRadius: 2,
+            //               offset: Offset(0, 6),
+            //             )
+            //           ],
+            //         ),
+            //         child: Row(
+            //           children: [
+            //             ClipRRect(
+            //               borderRadius: BorderRadius.circular(30),
+            //               child: Image.asset(
+            //                 avatar, // Esto depende de cómo manejes los avatares
+            //                 width: 60,
+            //                 height: 60,
+            //                 fit: BoxFit.cover,
+            //               ),
+            //             ),
+            //             const SizedBox(width: 12),
+            //             Expanded(
+            //               child: Column(
+            //                 mainAxisAlignment: MainAxisAlignment.center,
+            //                 crossAxisAlignment: CrossAxisAlignment.center,
+            //                 children: [
+            //                   Text(
+            //                     element
+            //                         .nombre, // Usar 'nombre' de 'Limpieza' aquí
+            //                     style: const TextStyle(
+            //                         fontSize: 16,
+            //                         fontWeight: FontWeight.bold,
+            //                         color: Colors.black),
+            //                   ),
+            //                   Text(
+            //                     'Edad: $edad', // Muestra la edad calculada aquí
+            //                     style: const TextStyle(
+            //                         fontSize: 16,
+            //                         fontWeight: FontWeight.bold,
+            //                         color: Color.fromARGB(100, 1, 112, 122)),
+            //                   ),
+            //                 ],
+            //               ),
+            //             ),
+            //             Icon(
+            //               element.disponible
+            //                   ? Icons.check_circle
+            //                   : Icons.cancel,
+            //               color: element.disponible ? Colors.green : Colors.red,
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // );
+          },
+        );
+      },
+    ));
   }
+
+//   Expanded listItemsArea() {
+//     return Expanded(
+//       child: FutureBuilder<List<Limpieza>>(
+//         future: _auxiliarElements,
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return const Center(child: CircularProgressIndicator());
+//           } else if (snapshot.hasError) {
+//             return Center(child: Text('Error: ${snapshot.error}'));
+//           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//             return const Center(
+//                 child: Text('No hay personal de limpieza disponibles.'));
+//           }
+
+//           final limpieza = snapshot.data!;
+
+//           return ListView.builder(
+//             physics: const BouncingScrollPhysics(),
+//             itemCount: limpieza.length,
+//             itemBuilder: (BuildContext context, int index) {
+//               final element = limpieza[index];
+//               final avatar = 'assets/avatars/avatar$index.png';
+
+//               return GestureDetector(
+//                 onTap: () {
+//                   Navigator.pushNamed(
+//                     context,
+//                     'perfil_experto_item',
+//                     arguments: <String, dynamic>{
+//                       'avatar': element.foto,
+//                       'name': element.nombre,
+//                       'precio': element.precio.toString(),
+//                       'disponibilidad': element.disponible,
+//                       'calificacion': element.calificacion,
+//                       'sexo': element.sexo,
+//                     },
+//                   );
+//                   FocusManager.instance.primaryFocus?.unfocus();
+//                 },
+//                 onLongPress: () {
+//                   setState(() {
+//                     _isFavorite[index] = !_isFavorite[index];
+//                   });
+//                   log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
+//                 },
+//                 child: Container(
+//                   height: 120,
+//                   margin:
+//                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+//                   padding: const EdgeInsets.all(12),
+//                   decoration: BoxDecoration(
+//                     color: Colors.grey.shade200,
+//                     borderRadius: BorderRadius.circular(10),
+//                     boxShadow: const [
+//                       BoxShadow(
+//                         color: Colors.black12,
+//                         blurRadius: 10,
+//                         spreadRadius: 2,
+//                         offset: Offset(0, 6),
+//                       )
+//                     ],
+//                   ),
+//                   child: Row(
+//                     children: [
+//                       ClipRRect(
+//                         borderRadius: BorderRadius.circular(30),
+//                         child: Image.asset(
+//                           avatar,
+//                           width: 60,
+//                           height: 60,
+//                           fit: BoxFit.cover,
+//                         ),
+//                       ),
+//                       const SizedBox(width: 12),
+//                       Expanded(
+//                         child: Column(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           crossAxisAlignment: CrossAxisAlignment.center,
+//                           children: [
+//                             Text(
+//                               element.name, // Ahora se usa el 'name' correcto.
+//                               style: const TextStyle(
+//                                   fontSize: 16,
+//                                   fontWeight: FontWeight.bold,
+//                                   color: Colors.black),
+//                             ),
+//                             Text(
+//                               element
+//                                   .oficio, // Aquí también corregí para usar 'oficio'.
+//                               style: const TextStyle(
+//                                   fontSize: 16,
+//                                   fontWeight: FontWeight.bold,
+//                                   color: Color.fromARGB(100, 1, 112, 122)),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       Icon(
+//                         element.disponibilidad
+//                             ? Icons.check_circle
+//                             : Icons.cancel,
+//                         color:
+//                             element.disponibilidad ? Colors.green : Colors.red,
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               );
+//             },
+//           );
+//         },
+//       ),
+//     );
+//   }
 
   // Sección de búsqueda
   AnimatedSwitcher searchArea() {
