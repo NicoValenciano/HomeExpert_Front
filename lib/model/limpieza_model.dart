@@ -1,22 +1,6 @@
-class LimpiezaResponse {
-  final String msg;
-  final List<Limpieza> data;
-
-  LimpiezaResponse({
-    required this.msg,
-    required this.data,
-  });
-
-  factory LimpiezaResponse.fromJson(Map<String, dynamic> json) =>
-      LimpiezaResponse(
-        msg: json["msg"],
-        data:
-            List<Limpieza>.from(json["data"].map((x) => Limpieza.fromJson(x))),
-      );
-}
-
 class Limpieza {
   String nombre;
+  String apellido;
   String foto;
   int edad;
   Sexo sexo;
@@ -27,6 +11,7 @@ class Limpieza {
 
   Limpieza({
     required this.nombre,
+    required this.apellido,
     required this.foto,
     required this.edad,
     required this.sexo,
@@ -38,6 +23,7 @@ class Limpieza {
 
   factory Limpieza.fromJson(Map<String, dynamic> json) => Limpieza(
         nombre: json["nombre"],
+        apellido: json["apellido"],
         foto: json["foto"],
         edad: json["edad"],
         sexo: sexoValues.map[json["sexo"]]!,
@@ -46,6 +32,18 @@ class Limpieza {
         calificacion: json["calificacion"],
         id: json["id"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "nombre": nombre,
+        "apellido": apellido,
+        "foto": foto,
+        "edad": edad,
+        "sexo": sexoValues.reverse[sexo],
+        "disponible": disponible,
+        "precio": precio,
+        "calificacion": calificacion,
+        "id": id,
+      };
 }
 
 enum Sexo {
