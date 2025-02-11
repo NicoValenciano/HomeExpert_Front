@@ -25,10 +25,10 @@ Jardineria - Nicolas Valenciano
     - Jardineria: Se muestran los expertos con su respectiva foto, nombre, especialidad y precio. Mantieniendo el click en un experto se puede visualizar su calificación. Tambien se puede filtrar por el precio con el range filter.
 4.  Pantalla de perfil del experto que muestra su foto, nombre, disponibilidad, fecha de nacimiento, calificación, sexo y precio.
 
-### mocks
-
-En esta carpeta se almacenan los mocks con los que funcionan la listas de cada uno de los integrantes.
-
 ### widgets
 
 Tenemos un widget para el drawer menu,un widget para las categorias de nuestros expertos y un widget para mostrar diferentes promociones.
+
+### providers
+
+Cada sección tiene configura un endpoint de nuestro backend por el cual se consume los dato generados por MockApi.
