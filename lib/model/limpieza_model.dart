@@ -17,9 +17,9 @@ class LimpiezaResponse {
 
 class Limpieza {
   String nombre;
-  String foto;
-  int edad;
-  Sexo sexo;
+  String? foto;
+  String fechaNacimiento;
+  String sexo;
   bool disponible;
   String precio;
   int calificacion;
@@ -27,8 +27,8 @@ class Limpieza {
 
   Limpieza({
     required this.nombre,
-    required this.foto,
-    required this.edad,
+    this.foto,
+    required this.fechaNacimiento,
     required this.sexo,
     required this.disponible,
     required this.precio,
@@ -39,8 +39,8 @@ class Limpieza {
   factory Limpieza.fromJson(Map<String, dynamic> json) => Limpieza(
         nombre: json["nombre"],
         foto: json["foto"],
-        edad: json["edad"],
-        sexo: sexoValues.map[json["sexo"]]!,
+        fechaNacimiento: json["fechaNacimiento"],
+        sexo: json["sexo"],
         disponible: json["disponible"],
         precio: json["precio"],
         calificacion: json["calificacion"],
