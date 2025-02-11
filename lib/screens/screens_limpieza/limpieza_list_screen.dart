@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import '../../mocks/limpieza_mock.dart' show listadoLimpieza;
 
-List<bool> _isFavorite = [];
+import 'package:home_expert_front/model/limpieza_model.dart';
+import 'package:home_expert_front/providers/limpieza_provider.dart';
+import 'package:provider/provider.dart';
 
 class LimpiezaListScreen extends StatefulWidget {
   const LimpiezaListScreen({super.key});
@@ -12,7 +13,8 @@ class LimpiezaListScreen extends StatefulWidget {
 }
 
 class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
-  List<Map<String, dynamic>> _auxiliarElements = [];
+  late Future<List<Limpieza>> _auxiliarElements;
+  List<bool> _isFavorite = [];
   String _searchQuery = '';
   bool _searchActive = false;
 
@@ -23,8 +25,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   @override
   void initState() {
     super.initState();
-    _auxiliarElements = listadoLimpieza;
-    _isFavorite = List.generate(_auxiliarElements.length, (index) => false);
+    _loadData();
   }
 
   @override
@@ -34,26 +35,51 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     super.dispose();
   }
 
-  void _updateSearch(String? query) {
-    setState(() {
-      _searchQuery = query ?? '';
-      _applyFilters();
+  void _loadData() {
+    _auxiliarElements = _getLimpiezaProvider(context).getLimpieza();
+    _auxiliarElements.then((data) {
+      setState(() {
+        _isFavorite =
+            List.generate(data.length, (index) => false); // Inicializa en falso
+      });
+    }).catchError((error) {
+      print("Error al cargar los datos: $error");
     });
   }
 
-  void _applyFilters() {
+  LimpiezaProvider _getLimpiezaProvider(BuildContext context) {
+    return Provider.of<LimpiezaProvider>(context, listen: false);
+  }
+
+  void _updateSearch(String? query) {
     setState(() {
-      _auxiliarElements = listadoLimpieza.where((element) {
-        // Filtrar por nombre
-        bool matchesSearchQuery =
-            element['id'].toLowerCase().contains(_searchQuery.toLowerCase());
+      _searchQuery = query ?? '';
+      if (_searchQuery.isEmpty) {
+        _auxiliarElements =
+            _getLimpiezaProvider(context).getLimpieza().then((paseadores) {
+          if (_searchQuery.isEmpty) {
+            return paseadores;
+          } else {
+            return paseadores.where((element) {
+              return element.id
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
+            }).toList();
+          }
+        });
+      }
+    });
+  }
 
-        // Filtrar por sexo
-        bool matchesSexoQuery =
-            _sexoSeleccionado.isEmpty || element['sexo'] == _sexoSeleccionado;
-
-        return matchesSearchQuery && matchesSexoQuery;
-      }).toList();
+  void _applyFilters(String sexo) {
+    setState(() {
+      _sexoSeleccionado = sexo;
+      _auxiliarElements =
+          _getLimpiezaProvider(context).getLimpieza().then((limpieza) {
+        return limpieza.where((element) {
+          return element.sexo == _sexoSeleccionado;
+        }).toList();
+      });
     });
   }
 
@@ -68,8 +94,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
             SexoToggleButton(
               onSexoChanged: (sexo) {
                 setState(() {
-                  _sexoSeleccionado = sexo;
-                  _applyFilters();
+                  _applyFilters(sexo);
                 });
               },
             ), // Búsqueda por sexo
@@ -83,118 +108,131 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   //Lista de elementos
   Expanded listItemsArea() {
     return Expanded(
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: _auxiliarElements.length,
-        itemBuilder: (BuildContext context, int index) {
-          final element = _auxiliarElements[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                'perfil_experto_item',
-                arguments: <String, dynamic>{
-                  'avatar': element['foto'],
-                  'name': element['nombreCompleto'],
-                  'precio': element['precio'],
-                  'disponibilidad': element['disponibilidad'],
-                  'fecha_nacimiento': element['fechaNac'].split('T')[0],
-                  'calificacion': element['calificacion'],
-                  'oficio': element['oficio'],
-                  'sexo': element['sexo'],
-                },
-              );
-            },
-            onLongPress: () {
-              setState(() {
-                _isFavorite[index] = !_isFavorite[index];
-              });
-              log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
-            },
-            child: Container(
-              height: 120,
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: Offset(0, 6),
-                  )
-                ],
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      'assets/avatars/${element['foto']}.png',
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          element['nombreCompleto'],
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
+        child: FutureBuilder<List<Limpieza>>(
+            future: _auxiliarElements,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text('Error al cargar los datos'),
+                );
+              } else {
+                final limpieza = snapshot.data!;
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: limpieza.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final element = limpieza[index];
+                    final avatar = 'assets/avatars/avatar$index.png';
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          'perfil_experto_item',
+                          arguments: <String, dynamic>{
+                            'avatar': avatar,
+                            'name': element.nombre,
+                            'precio': element.precio,
+                            'disponibilidad': element.disponible,
+                            'fecha_nacimiento':
+                                element.fechaNacimiento.split('T')[0],
+                            'calificacion': element.calificacion,
+                            'sexo': element.sexo,
+                          },
+                        );
+                      },
+                      onLongPress: () {
+                        setState(() {
+                          _isFavorite[index] = !_isFavorite[index];
+                        });
+                        log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
+                      },
+                      child: Container(
+                        height: 120,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                              offset: Offset(0, 6),
+                            )
+                          ],
                         ),
-                        Text(
-                          element['oficio'],
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(100, 1, 112, 122)),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Image.asset(
+                                avatar,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    element.nombre,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              element.disponible
+                                  ? Icons.event_available_outlined
+                                  : Icons.highlight_off,
+                              color: element.disponible
+                                  ? const Color.fromARGB(255, 1, 158, 30)
+                                  : const Color.fromARGB(255, 248, 55, 42),
+                            ),
+                            const SizedBox(width: 20),
+                            Row(
+                              children: [
+                                Text(
+                                  element.calificacion.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.black),
+                                ),
+                                const Icon(
+                                  Icons.grade,
+                                  color: Color.fromARGB(255, 254, 217, 32),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 20),
+                            Icon(
+                              _isFavorite[index]
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color:
+                                  _isFavorite[index] ? Colors.red : Colors.grey,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    element['disponibilidad']
-                        ? Icons.event_available_outlined
-                        : Icons.highlight_off,
-                    color: element['disponibilidad']
-                        ? const Color.fromARGB(255, 1, 158, 30)
-                        : const Color.fromARGB(255, 248, 55, 42),
-                  ),
-                  const SizedBox(width: 20),
-                  Row(
-                    children: [
-                      Text(
-                        element['calificacion'].toString(),
-                        style:
-                            const TextStyle(fontSize: 15, color: Colors.black),
                       ),
-                      const Icon(
-                        Icons.grade,
-                        color: Color.fromARGB(255, 254, 217, 32),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Icon(
-                    _isFavorite[index] ? Icons.favorite : Icons.favorite_border,
-                    color: _isFavorite[index] ? Colors.red : Colors.grey,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
+                    );
+                  },
+                );
+              }
+            }));
   }
 
   // Sección de búsqueda

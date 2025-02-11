@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../../mocks/mantenimiento_mock.dart' show elements;
+import 'package:home_expert_front/model/mantenimiento_model.dart';
+import 'package:home_expert_front/providers/mantenimiento_provider.dart';
+import 'package:provider/provider.dart';
 import 'drawer_menu_mantenimiento.dart';
 
 class MantenimientoListScreen extends StatefulWidget {
@@ -13,7 +15,7 @@ class MantenimientoListScreen extends StatefulWidget {
 }
 
 class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
-  List<Map<String, dynamic>> _auxiliarElements = [];
+  late Future<List<Mantenimiento>> _auxiliarElements;
   String _searchQuery = '';
   bool _searchActive = false;
 
@@ -23,7 +25,7 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
   @override
   void initState() {
     super.initState();
-    _auxiliarElements = elements;
+    _loadData();
   }
 
   @override
@@ -33,29 +35,47 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     super.dispose();
   }
 
+  void _loadData() {
+    setState(() {
+      _auxiliarElements = _getMantenimientoProvider(context).getMantenimiento();
+    });
+  }
+
+  MantenimientoProvider _getMantenimientoProvider(BuildContext context) {
+    return Provider.of<MantenimientoProvider>(context, listen: false);
+  }
+
   void _updateSearch(String? query) {
     setState(() {
       _searchQuery = query ?? '';
-      if (_searchQuery.isEmpty) {
-        _auxiliarElements = elements;
-      } else {
-        _auxiliarElements = elements.where((element) {
-          return element['id']
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase());
-        }).toList();
-      }
+      _auxiliarElements = _getMantenimientoProvider(context)
+          .getMantenimiento()
+          .then((mantenimiento) {
+        if (_searchQuery.isEmpty) {
+          return mantenimiento;
+        } else {
+          return mantenimiento.where((element) {
+            return element.id
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase());
+          }).toList();
+        }
+      });
     });
   }
 
   void _filterByOficio(String oficio) {
     setState(() {
-      _auxiliarElements = elements.where((element) {
-        return element['oficio'] == oficio &&
-            (element['nombreCompleto']
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()));
-      }).toList();
+      _auxiliarElements = _getMantenimientoProvider(context)
+          .getMantenimiento()
+          .then((mantenimiento) {
+        return mantenimiento.where((element) {
+          return element.oficio == oficio &&
+              (element.nombreCompleto
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()));
+        }).toList();
+      });
     });
   }
 
@@ -84,93 +104,110 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
 
   Expanded listItemsArea() {
     return Expanded(
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: _auxiliarElements.length,
-        itemBuilder: (BuildContext context, int index) {
-          final element = _auxiliarElements[index];
+        child: FutureBuilder<List<Mantenimiento>>(
+            future: _auxiliarElements,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                    child: Text('No hay gente de mantenimiento disponible'));
+              } else {
+                final mantenimiento = snapshot.data!;
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: mantenimiento.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final element = mantenimiento[index];
+                    final avatar = 'assets/avatars/avatar$index.png';
 
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                'perfil_experto_item',
-                arguments: <String, dynamic>{
-                  'avatar': element['foto'],
-                  'name': element['nombreCompleto'],
-                  'fecha_nacimiento': element['fechaNac'].split('T')[0],
-                  'disponibilidad': element['disponibilidad'],
-                  'precio': element['precio'],
-                  'calificacion': element['calificacion'],
-                  'id': element['id'],
-                  'sexo': element['sexo']
-                },
-              );
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            onLongPress: () {
-              log('onLongPress $index');
-              _showRatingPopup(context, index);
-            },
-            child: Container(
-              height: 110,
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromARGB(31, 22, 78, 189),
-                    blurRadius: 15,
-                    spreadRadius: 5,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(25),
-                    child: Image.asset(
-                      'assets/avatars/${element['foto']}.png',
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          element['nombreCompleto'],
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.bold),
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          'perfil_experto_item',
+                          arguments: <String, dynamic>{
+                            'avatar': avatar,
+                            'name': element.nombreCompleto,
+                            'fecha_nacimiento': element.fechaNac.split('T')[0],
+                            'disponibilidad': element.disponibilidad,
+                            'precio': element.precio,
+                            'calificacion': element.calificacion,
+                            'id': element.id,
+                            'sexo': element.sexo
+                          },
+                        );
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
+                      onLongPress: () {
+                        log('onLongPress $index');
+                        _showRatingPopup(context, index, mantenimiento);
+                      },
+                      child: Container(
+                        height: 110,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color.fromARGB(31, 22, 78, 189),
+                              blurRadius: 15,
+                              spreadRadius: 5,
+                              offset: Offset(0, 6),
+                            ),
+                          ],
                         ),
-                        Text('Precio: ${element['precio']}'),
-                        Text('Oficio: ${element['oficio']}'),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    element['disponibilidad']
-                        ? Icons.check_circle
-                        : Icons.cancel,
-                    color:
-                        element['disponibilidad'] ? Colors.green : Colors.red,
-                  ),
-                  const SizedBox(width: 10),
-                  Text('${element['calificacion']}'),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(25),
+                              child: Image.asset(
+                                avatar,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    element.nombreCompleto,
+                                    style: const TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text('Precio: ${element.precio}'),
+                                  Text('Oficio: ${element.oficio}'),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              element.disponibilidad
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              color: element.disponibilidad
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(element.calificacion),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+            }));
   }
 
   AnimatedSwitcher searchArea() {
@@ -230,8 +267,9 @@ class _MantenimientoListScreenState extends State<MantenimientoListScreen> {
     );
   }
 
-  void _showRatingPopup(BuildContext context, int index) {
-    final rating = double.parse(_auxiliarElements[index]["calificacion"]);
+  void _showRatingPopup(
+      BuildContext context, int index, List<Mantenimiento> mantenimiento) {
+    final rating = double.parse(mantenimiento[index].calificacion);
     final stars = (rating / 2).round();
 
     showDialog(
