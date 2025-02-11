@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
 
+
 import 'package:home_expert_front/model/limpieza_model.dart';
 import 'package:home_expert_front/providers/limpieza_provider.dart';
 import 'package:provider/provider.dart';
+import '../../mocks/limpieza_mock.dart' show listadoLimpieza;
+
+List<bool> _isFavorite = [];
+
 
 class LimpiezaListScreen extends StatefulWidget {
   const LimpiezaListScreen({super.key});
@@ -13,8 +18,11 @@ class LimpiezaListScreen extends StatefulWidget {
 }
 
 class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
+
   late Future<List<Limpieza>> _auxiliarElements;
   List<bool> _isFavorite = [];
+
+  List<Map<String, dynamic>> _auxiliarElements = [];
   String _searchQuery = '';
   bool _searchActive = false;
 
@@ -25,7 +33,11 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   @override
   void initState() {
     super.initState();
+
     _loadData();
+
+    _auxiliarElements = listadoLimpieza;
+    _isFavorite = List.generate(_auxiliarElements.length, (index) => false);
   }
 
   @override
@@ -34,6 +46,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     _focusNode.dispose();
     super.dispose();
   }
+
 
   void _loadData() {
     _auxiliarElements = _getLimpiezaProvider(context).getLimpieza();
@@ -50,6 +63,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   LimpiezaProvider _getLimpiezaProvider(BuildContext context) {
     return Provider.of<LimpiezaProvider>(context, listen: false);
   }
+
 
   void _updateSearch(String? query) {
     setState(() {
@@ -71,6 +85,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
     });
   }
 
+
   void _applyFilters(String sexo) {
     setState(() {
       _sexoSeleccionado = sexo;
@@ -80,6 +95,21 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
           return element.sexo == _sexoSeleccionado;
         }).toList();
       });
+
+  void _applyFilters() {
+    setState(() {
+      _auxiliarElements = listadoLimpieza.where((element) {
+        // Filtrar por nombre
+        bool matchesSearchQuery =
+            element['id'].toLowerCase().contains(_searchQuery.toLowerCase());
+
+        // Filtrar por sexo
+        bool matchesSexoQuery =
+            _sexoSeleccionado.isEmpty || element['sexo'] == _sexoSeleccionado;
+
+        return matchesSearchQuery && matchesSexoQuery;
+      }).toList();
+
     });
   }
 
@@ -108,6 +138,7 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
   //Lista de elementos
   Expanded listItemsArea() {
     return Expanded(
+
         child: FutureBuilder<List<Limpieza>>(
             future: _auxiliarElements,
             builder: (context, snapshot) {
@@ -233,6 +264,120 @@ class _LimpiezaListScreenState extends State<LimpiezaListScreen> {
                 );
               }
             }));
+
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        itemCount: _auxiliarElements.length,
+        itemBuilder: (BuildContext context, int index) {
+          final element = _auxiliarElements[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                'perfil_experto_item',
+                arguments: <String, dynamic>{
+                  'avatar': element['foto'],
+                  'name': element['nombreCompleto'],
+                  'precio': element['precio'],
+                  'disponibilidad': element['disponibilidad'],
+                  'fecha_nacimiento': element['fechaNac'].split('T')[0],
+                  'calificacion': element['calificacion'],
+                  'oficio': element['oficio'],
+                  'sexo': element['sexo'],
+                },
+              );
+            },
+            onLongPress: () {
+              setState(() {
+                _isFavorite[index] = !_isFavorite[index];
+              });
+              log('Elemento $index marcado como favorito: ${_isFavorite[index]}');
+            },
+            child: Container(
+              height: 120,
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                    offset: Offset(0, 6),
+                  )
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      'assets/avatars/${element['foto']}.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          element['nombreCompleto'],
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                        Text(
+                          element['oficio'],
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(100, 1, 112, 122)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    element['disponibilidad']
+                        ? Icons.event_available_outlined
+                        : Icons.highlight_off,
+                    color: element['disponibilidad']
+                        ? const Color.fromARGB(255, 1, 158, 30)
+                        : const Color.fromARGB(255, 248, 55, 42),
+                  ),
+                  const SizedBox(width: 20),
+                  Row(
+                    children: [
+                      Text(
+                        element['calificacion'].toString(),
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                      const Icon(
+                        Icons.grade,
+                        color: Color.fromARGB(255, 254, 217, 32),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 20),
+                  Icon(
+                    _isFavorite[index] ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite[index] ? Colors.red : Colors.grey,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
   }
 
   // Sección de búsqueda
