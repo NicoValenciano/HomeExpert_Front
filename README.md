@@ -31,4 +31,4 @@ Tenemos un widget para el drawer menu,un widget para las categorias de nuestros 
 
 ### providers
 
-Cada sección tiene configura un endpoint de nuestro backend por el cual se consume los dato generados por MockApi.
+Cada sección tiene configurado un endpoint de nuestro backend por el cual se consume los dato generados por MockApi.
